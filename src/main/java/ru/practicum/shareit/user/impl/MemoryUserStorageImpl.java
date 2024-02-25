@@ -3,7 +3,7 @@ package ru.practicum.shareit.user.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.item.exceptions.ConflictException;
+import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
