@@ -88,4 +88,8 @@ public class MemoryUserStorageImpl implements UserStorage {
                 .collect(Collectors.toList())
                 .isEmpty();
     }
+
+    public boolean IsUserFound (Long userId) {
+        return users.containsKey(userId);
+    }
 }

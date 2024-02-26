@@ -1,9 +1,12 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.request.ItemRequest;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * TODO Sprint add-controllers.
@@ -12,15 +15,25 @@ import ru.practicum.shareit.request.ItemRequest;
 @Setter
 @NoArgsConstructor
 public class ItemDto {
-    private String itemName;
+    @EqualsAndHashCode.Exclude
+    private long id;
+    @NotBlank
+    private String name;
+    @NotBlank
     private String description;
-    private Boolean status;
-    private ItemRequest request;
+    @NotNull
+    private Boolean available;
 
-    public ItemDto(String itemName, String description, Boolean status, ItemRequest request) {
-        this.itemName = itemName;
+    public ItemDto(String name, String description, Boolean available) {
+        this.name = name;
         this.description = description;
-        this.status = status;
-        this.request = request;
+        this.available = available;
+    }
+
+    public ItemDto(long id, String name, String description, Boolean available) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
     }
 }

@@ -16,13 +16,11 @@ public class Item {
     private String description; // описание
     private long owner; // номер пользователя которому принадлежит вещь
     private Boolean status; // статус вещи: доступна не доступна
-   //private List<Feedback> feedbacks; // таблица с отзывами, пользователь и описание
     private ItemRequest request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса
 
-    public Item(String itemName, String description, Boolean status, ItemRequest request) {
+    public Item(String itemName, String description, Boolean status) {
         this.itemName = itemName;
         this.description = description;
         this.status = status;
-        this.request = request;
     }
 }
