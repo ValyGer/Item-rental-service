@@ -20,7 +20,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserStorage memoryUserStorage;
 
     public Item createItem(Long userId, Item item) {
-        if (memoryUserStorage.IsUserFound(userId)) {
+        if (memoryUserStorage.isUserFound(userId)) {
             log.debug("Вызван метод создания новой вещи");
             return itemStorage.createItem(userId, item);
         } else {
@@ -30,7 +30,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public Item updateItem(Long userId, Long itemId, Item item) {
-        if (memoryUserStorage.IsUserFound(userId)) {
+        if (memoryUserStorage.isUserFound(userId)) {
             log.debug("Вызван метод обновления существующей вещи");
             return itemStorage.updateItem(userId, itemId, item);
         } else {
@@ -40,7 +40,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public List<Item> getAllItemsUser(Long userId) {
-        if (memoryUserStorage.IsUserFound(userId)) {
+        if (memoryUserStorage.isUserFound(userId)) {
             log.debug("Вызван метод вывода списка вещей пользователя");
             return itemStorage.getAllItemsUser(userId);
         } else {
