@@ -15,5 +15,5 @@ public interface UserStorage {
 
     HttpStatus deleteUser(Long userId);
 
-    boolean IsUserFound (Long userId);
+    boolean isUserFound(Long userId);
 }

@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public class ItemController {
 
     @PostMapping // Создание новой вещи
     public ItemDto createItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                    @Valid @RequestBody ItemDto itemDto) {
+                              @Valid @RequestBody ItemDto itemDto) {
         Item item = ItemMapper.toItem(itemDto);
         return ItemMapper.toItemDto(itemService.createItem(userId, item));
     }
@@ -40,9 +39,9 @@ public class ItemController {
     @GetMapping // Получение списка вещей пользователя
     public List<ItemDto> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") long userId) {
         return itemService.getAllItemsUser(userId)
-                    .stream()
-                    .map(ItemMapper::toItemDto)
-                    .collect(Collectors.toList());
+                .stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{itemId}") // Получение вещи по Id
@@ -50,4 +49,11 @@ public class ItemController {
         return ItemMapper.toItemDto(itemService.getItemsById(userId, itemId));
     }
 
+    @GetMapping("/search") // Поиск вещи по строке text
+    public List<ItemDto> searchAvailableItems(@RequestParam String text) {
+        return itemService.searchAvailableItems(text)
+                .stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
 }

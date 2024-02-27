@@ -18,8 +18,8 @@ public class UserServiceImpl implements UserService {
 
     // Создание нового пользователя
     public User createUser(User user) {
-            log.debug("Вызван метод создания пользователя");
-            return userStorage.createUser(user);
+        log.debug("Вызван метод создания пользователя");
+        return userStorage.createUser(user);
     }
 
     // Обновление пользователя

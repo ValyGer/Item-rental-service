@@ -19,7 +19,7 @@ public class MemoryUserStorageImpl implements UserStorage {
     private static long generateUserId = 0L;
 
     public User createUser(User user) {
-        if (IsEmailBusy(user)) {
+        if (isEmailBusy(user)) {
             user.setUserId(++generateUserId);
             users.put(user.getUserId(), user);
             log.info("Пользователь {} успешно добавлен", user);
@@ -40,7 +40,7 @@ public class MemoryUserStorageImpl implements UserStorage {
             users.put(saved.getUserId(), saved);
             return saved;
         } else if (user.getUserName() == null) {
-            if ((IsEmailBusy(user)) || (user.getEmail().equals(saved.getEmail())) ) {
+            if ((isEmailBusy(user)) || (user.getEmail().equals(saved.getEmail()))) {
                 log.info("Почта пользователя {} успешно обновлена", saved);
                 saved.setEmail(user.getEmail());
                 users.put(saved.getUserId(), saved);
@@ -81,15 +81,15 @@ public class MemoryUserStorageImpl implements UserStorage {
         }
     }
 
-    private boolean IsEmailBusy (User user) {
-        return  users.values()
+    private boolean isEmailBusy(User user) {
+        return users.values()
                 .stream()
                 .filter(u -> u.getEmail().equals(user.getEmail()))
                 .collect(Collectors.toList())
                 .isEmpty();
     }
 
-    public boolean IsUserFound (Long userId) {
+    public boolean isUserFound(Long userId) {
         return users.containsKey(userId);
     }
 }

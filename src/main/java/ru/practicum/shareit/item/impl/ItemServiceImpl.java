@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -43,18 +44,23 @@ public class ItemServiceImpl implements ItemService {
             log.debug("Вызван метод вывода списка вещей пользователя");
             return itemStorage.getAllItemsUser(userId);
         } else {
-                log.info("Пользователь с идентификатором id = {} не найден", userId);
-                throw new NotFoundException("Пользователь с идентификатором id не найден");
+            log.info("Пользователь с идентификатором id = {} не найден", userId);
+            throw new NotFoundException("Пользователь с идентификатором id не найден");
         }
     }
 
     public Item getItemsById(Long userId, Long itemId) {
-        if (memoryUserStorage.IsUserFound(userId)) {
-            log.debug("Вызван метод вывода списка вещей пользователя");
-            return itemStorage.getItemsById(userId, itemId);
+        log.debug("Вызван метод вывода списка вещей пользователя");
+        return itemStorage.getItemsById(userId, itemId);
+    }
+
+    public List<Item> searchAvailableItems(String text) {
+        if (text.isBlank()) {
+            log.debug("Передан пустой запрос, возвращен пустой список");
+            return new ArrayList<>();
         } else {
-            log.info("Пользователь с идентификатором id = {} не найден", userId);
-            throw new NotFoundException("Пользователь с идентификатором id не найден");
+            log.debug("Вызван метод поиска доступной вещи");
+            return itemStorage.searchAvailableItems(text);
         }
     }
 }
