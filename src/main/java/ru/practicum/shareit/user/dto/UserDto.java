@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class UserDto {
     @EqualsAndHashCode.Exclude
-    private long id;
+    private Long id;
     private String name;
     @NotBlank
     @Email(message = "электронная почта не может быть пустой и должна содержать символ @")

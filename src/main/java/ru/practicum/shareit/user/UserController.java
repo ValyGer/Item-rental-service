@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -21,28 +22,28 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping // Добавление нового пользователя
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        return UserMapper.toUserDto(userService.createUser(user));
+        return ResponseEntity.ok().body(UserMapper.toUserDto(userService.createUser(user)));
     }
 
     @GetMapping // Получение списка всех пользователей
-    public List<UserDto> getAllUsers() {
-        return userService.getAllUsers()
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        return ResponseEntity.ok().body(userService.getAllUsers()
                 .stream()
                 .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/{userId}") // Получение пользователя по Id
-    public UserDto getUserById(@PathVariable long userId) {
-        return UserMapper.toUserDto(userService.getUserById(userId));
+    public ResponseEntity<UserDto> getUserById(@PathVariable long userId) {
+        return ResponseEntity.ok().body(UserMapper.toUserDto(userService.getUserById(userId)));
     }
 
     @PatchMapping("/{userId}") // Обновление информации о пользователе
-    public UserDto updateUser(@PathVariable long userId, @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable long userId, @RequestBody UserDto userDto) {
         User user = UserMapper.toUser(userId, userDto);
-        return UserMapper.toUserDto(userService.updateUser(user));
+        return ResponseEntity.ok().body(UserMapper.toUserDto(userService.updateUser(user)));
     }
 
     @DeleteMapping("/{userId}") // Удаление пользователя по Id
