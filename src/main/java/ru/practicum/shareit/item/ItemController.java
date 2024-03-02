@@ -22,39 +22,40 @@ import java.util.stream.Collectors;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemMapper itemMapper;
 
     @PostMapping // Создание новой вещи
     public ResponseEntity<ItemDto> createItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @Valid @RequestBody ItemDto itemDto) {
-        Item item = ItemMapper.toItem(itemDto);
-        return ResponseEntity.ok().body(ItemMapper.toItemDto(itemService.createItem(userId, item)));
+                                              @Valid @RequestBody ItemDto itemDto) {
+        Item item = itemMapper.toItem(itemDto);
+        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.createItem(userId, item)));
     }
 
     @PatchMapping("/{itemId}") // Обновление информации о вещи
     public ResponseEntity<ItemDto> updateItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId,
-                              @RequestBody ItemDto itemDto) {
-        Item item = ItemMapper.toItem(itemDto);
-        return ResponseEntity.ok().body(ItemMapper.toItemDto(itemService.updateItem(userId, itemId, item)));
+                                              @RequestBody ItemDto itemDto) {
+        Item item = itemMapper.toItem(itemDto);
+        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.updateItem(userId, itemId, item)));
     }
 
     @GetMapping // Получение списка вещей пользователя
     public ResponseEntity<List<ItemDto>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") long userId) {
         return ResponseEntity.ok().body(itemService.getAllItemsUser(userId)
                 .stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
     }
 
     @GetMapping("/{itemId}") // Получение вещи по Id
     public ResponseEntity<ItemDto> getItemsById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
-        return ResponseEntity.ok().body(ItemMapper.toItemDto(itemService.getItemsById(userId, itemId)));
+        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.getItemsById(userId, itemId)));
     }
 
     @GetMapping("/search") // Поиск вещи по строке text
     public ResponseEntity<List<ItemDto>> searchAvailableItems(@RequestParam String text) {
         return ResponseEntity.ok().body(itemService.searchAvailableItems(text)
                 .stream()
-                .map(ItemMapper::toItemDto)
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
     }
 }

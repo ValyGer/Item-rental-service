@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.http.HttpStatus;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 

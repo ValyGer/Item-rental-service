@@ -24,8 +24,8 @@ public class ItemServiceImpl implements ItemService {
             log.debug("Вызван метод создания новой вещи");
             return itemStorage.createItem(userId, item);
         } else {
-            log.info("Пользователь с идентификатором id = {} не найден", userId);
-            throw new NotFoundException("Пользователь с идентификатором id не найден");
+            log.info("Пользователь с идентификатором userId = {} не найден", userId);
+            throw new NotFoundException("Пользователь с идентификатором userId не найден");
         }
     }
 
@@ -34,8 +34,8 @@ public class ItemServiceImpl implements ItemService {
             log.debug("Вызван метод обновления существующей вещи");
             return itemStorage.updateItem(userId, itemId, item);
         } else {
-            log.info("Пользователь с идентификатором id = {} не найден", userId);
-            throw new NotFoundException("Пользователь с идентификатором id не найден");
+            log.info("Пользователь с идентификатором userId = {} не найден", userId);
+            throw new NotFoundException("Пользователь с идентификатором userId не найден");
         }
     }
 
@@ -44,8 +44,8 @@ public class ItemServiceImpl implements ItemService {
             log.debug("Вызван метод вывода списка вещей пользователя");
             return itemStorage.getAllItemsUser(userId);
         } else {
-            log.info("Пользователь с идентификатором id = {} не найден", userId);
-            throw new NotFoundException("Пользователь с идентификатором id не найден");
+            log.info("Пользователь с идентификатором userId = {} не найден", userId);
+            throw new NotFoundException("Пользователь с идентификатором userId не найден");
         }
     }
 

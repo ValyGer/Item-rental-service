@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.ConflictException;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.util.ArrayList;
@@ -32,8 +32,8 @@ public class MemoryUserStorageImpl implements UserStorage {
     public User updateUser(User user) {
         User saved = users.get(user.getUserId());
         if (saved == null) {
-            log.info("Пользователь c id = {} не найден", user.getUserId());
-            throw new RuntimeException("Пользователь с указанным id не найден");
+            log.info("Пользователь c userId = {} не найден", user.getUserId());
+            throw new RuntimeException("Пользователь с указанным userId не найден");
         } else if (user.getEmail() == null) {
             log.info("Имя пользователя {} обновлено", saved);
             saved.setUserName(user.getUserName());
@@ -62,22 +62,22 @@ public class MemoryUserStorageImpl implements UserStorage {
 
     public User getUserById(Long userId) {
         if (users.containsKey(userId)) {
-            log.info("Возвращен пользователь с id = {}", userId);
+            log.info("Возвращен пользователь с userId = {}", userId);
             return users.get(userId);
         } else {
-            log.info("Пользователь c id = {} не найден", userId);
-            throw new RuntimeException("Пользователь с указанным id не найден");
+            log.info("Пользователь c userId = {} не найден", userId);
+            throw new RuntimeException("Пользователь с указанным userId не найден");
         }
     }
 
     public HttpStatus deleteUser(Long userId) {
         if (users.containsKey(userId)) {
-            log.info("Возвращен пользователь с id = {}", userId);
+            log.info("Возвращен пользователь с userId = {}", userId);
             users.remove(userId);
             return HttpStatus.OK;
         } else {
-            log.info("Пользователь c id = {} не найден", userId);
-            throw new RuntimeException("Пользователь с указанным id не найден");
+            log.info("Пользователь c userId = {} не найден", userId);
+            throw new RuntimeException("Пользователь с указанным userId не найден");
         }
     }
 

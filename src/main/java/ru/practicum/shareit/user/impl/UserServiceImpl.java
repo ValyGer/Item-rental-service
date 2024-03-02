@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.UserStorage;
 
@@ -23,8 +23,9 @@ public class UserServiceImpl implements UserService {
     }
 
     // Обновление пользователя
-    public User updateUser(User user) {
+    public User updateUser(Long userId, User user) {
         log.debug("Вызван метод обновления пользователя");
+        user.setUserId(userId);
         return userStorage.updateUser(user);
     }
 
