@@ -15,6 +15,6 @@ import java.time.LocalDateTime;
 public class ItemRequest {
     private long itemRequestId; //идентификатор запроса
     private String description; // описание запроса
-    private User requestor; // пользователь, который создал запроса
+    private User requester; // пользователь, который создал запроса
     private LocalDateTime create; // дата и время создания запроса
 }
