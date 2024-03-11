@@ -14,5 +14,5 @@ public interface UserService {
 
     User getUserById(Long userId);
 
-    HttpStatus deleteUser(Long userId);
+    void deleteUser(Long userId);
 }

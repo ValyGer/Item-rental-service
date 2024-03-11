@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}") // Удаление пользователя по Id
-    public HttpStatus deleteUserBuId(@PathVariable long userId) {
-        return userService.deleteUser(userId);
+    public void deleteUserBuId(@PathVariable long userId) {
+        userService.deleteUser(userId);
     }
 }

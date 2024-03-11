@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.model;
 
 import lombok.*;
 import ru.practicum.shareit.request.ItemRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -18,6 +20,7 @@ public class Item {
     private long owner; // номер пользователя которому принадлежит вещь
     private Boolean status; // статус вещи: доступна не доступна
     private ItemRequest request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса
+    private List<Comment> comments = new ArrayList<>(); // список комментариев
 
     public Item(String itemName, String description, Boolean status) {
         this.itemName = itemName;
