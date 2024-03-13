@@ -1,11 +1,10 @@
-package ru.practicum.shareit.user.impl;
+package ru.practicum.shareit.user.memory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,8 +19,8 @@ public class MemoryUserStorageImpl implements UserStorage {
 
     public User createUser(User user) {
         if (isEmailBusy(user)) {
-            user.setUserId(++generateUserId);
-            users.put(user.getUserId(), user);
+            user.setId(++generateUserId);
+            users.put(user.getId(), user);
             log.info("Пользователь {} успешно добавлен", user);
             return user;
         } else {
@@ -30,27 +29,27 @@ public class MemoryUserStorageImpl implements UserStorage {
     }
 
     public User updateUser(User user) {
-        User saved = users.get(user.getUserId());
+        User saved = users.get(user.getId());
         if (saved == null) {
-            log.info("Пользователь c userId = {} не найден", user.getUserId());
-            throw new RuntimeException("Пользователь с указанным userId не найден");
+            log.info("Пользователь c id = {} не найден", user.getId());
+            throw new RuntimeException("Пользователь с указанным id не найден");
         } else if (user.getEmail() == null) {
             log.info("Имя пользователя {} обновлено", saved);
             saved.setUserName(user.getUserName());
-            users.put(saved.getUserId(), saved);
+            users.put(saved.getId(), saved);
             return saved;
         } else if (user.getUserName() == null) {
             if ((isEmailBusy(user)) || (user.getEmail().equals(saved.getEmail()))) {
                 log.info("Почта пользователя {} успешно обновлена", saved);
                 saved.setEmail(user.getEmail());
-                users.put(saved.getUserId(), saved);
+                users.put(saved.getId(), saved);
                 return saved;
             } else {
                 throw new ConflictException("Пользователь с такой почтой уже существует");
             }
         } else {
             log.info("Пользователь {} успешно обновлен", saved);
-            users.put(saved.getUserId(), user);
+            users.put(saved.getId(), user);
             return user;
         }
     }
@@ -62,22 +61,22 @@ public class MemoryUserStorageImpl implements UserStorage {
 
     public User getUserById(Long userId) {
         if (users.containsKey(userId)) {
-            log.info("Возвращен пользователь с userId = {}", userId);
+            log.info("Возвращен пользователь с id = {}", userId);
             return users.get(userId);
         } else {
-            log.info("Пользователь c userId = {} не найден", userId);
-            throw new RuntimeException("Пользователь с указанным userId не найден");
+            log.info("Пользователь c id = {} не найден", userId);
+            throw new RuntimeException("Пользователь с указанным id не найден");
         }
     }
 
     public HttpStatus deleteUser(Long userId) {
         if (users.containsKey(userId)) {
-            log.info("Возвращен пользователь с userId = {}", userId);
+            log.info("Возвращен пользователь с id = {}", userId);
             users.remove(userId);
             return HttpStatus.OK;
         } else {
-            log.info("Пользователь c userId = {} не найден", userId);
-            throw new RuntimeException("Пользователь с указанным userId не найден");
+            log.info("Пользователь c id = {} не найден", userId);
+            throw new RuntimeException("Пользователь с указанным id не найден");
         }
     }
 

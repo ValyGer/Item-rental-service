@@ -4,54 +4,90 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.model.User;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    private final ItemStorage itemStorage;
-    private final UserStorage memoryUserStorage;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
-    public Item createItem(Long userId, Item item) {
-        if (memoryUserStorage.isUserFound(userId)) {
-            log.debug("Вызван метод создания новой вещи");
-            return itemStorage.createItem(userId, item);
+    // Добавление вещи
+    public Item createItem(Long userId, Item item) throws NotFoundException {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            log.info("Вещь успешно добавлена");
+            item.setOwner(userId);
+            return itemRepository.save(item);
         } else {
-            log.info("Пользователь с идентификатором userId = {} не найден", userId);
-            throw new NotFoundException("Пользователь с идентификатором userId не найден");
+            log.info("Пользователь с Id = {} существует в базе", userId);
+            throw new NotFoundException("Пользователь не найден");
         }
     }
 
-    public Item updateItem(Long userId, Long itemId, Item item) {
-        if (memoryUserStorage.isUserFound(userId)) {
-            log.debug("Вызван метод обновления существующей вещи");
-            return itemStorage.updateItem(userId, itemId, item);
+    // Обновление вещи
+    public Item updateItem(Long userId, Long itemId, Item item) throws NotFoundException {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            log.info("Пользователь с Id = {} существует в базе", userId);
+            try {
+                Item saved = itemRepository.getReferenceById(itemId);
+                if (item.getName() != null) {
+                    saved.setName(item.getName());
+                }
+                if (item.getDescription() != null) {
+                    saved.setDescription(item.getDescription());
+                }
+                if (item.getStatus() != null) {
+                    saved.setStatus(item.getStatus());
+                }
+                log.info("Вещь с Id = {} обновлена", itemId);
+                return itemRepository.save(saved);
+            } catch (NotFoundException e) {
+                log.info("Данной вещи с Id = {} нет у пользователя", itemId);
+                throw new NotFoundException("Вещи с указанным Id не принадлежит данному пользователю");
+            }
         } else {
-            log.info("Пользователь с идентификатором userId = {} не найден", userId);
-            throw new NotFoundException("Пользователь с идентификатором userId не найден");
+            log.info("Пользователь с Id = {} не существует в базе", userId);
+            throw new NotFoundException("Пользователь не найден");
         }
     }
 
+    // Получение вещи пользователя
+    @Transactional
     public List<Item> getAllItemsUser(Long userId) {
-        if (memoryUserStorage.isUserFound(userId)) {
-            log.debug("Вызван метод вывода списка вещей пользователя");
-            return itemStorage.getAllItemsUser(userId);
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            log.info("Пользователь с Id = {} существует в базе", userId);
+            List<Item> items = itemRepository.findItemsByOwner(userId);
+            log.info("Список вещей успешно получен");
+            return items;
         } else {
-            log.info("Пользователь с идентификатором userId = {} не найден", userId);
-            throw new NotFoundException("Пользователь с идентификатором userId не найден");
+            log.info("Пользователь с Id = {} отсутствует в баз", userId);
+            throw new NotFoundException("Пользователя с указанным Id не существует");
         }
     }
 
+    // Получение вещи по Id
     public Item getItemsById(Long userId, Long itemId) {
-        log.debug("Вызван метод вывода списка вещей пользователя");
-        return itemStorage.getItemsById(userId, itemId);
+        Optional<Item> item = itemRepository.findById(itemId);
+        if (item.isPresent()) {
+            log.info("Получена вещь с Id = {}", itemId);
+            return item.get();
+        } else {
+            log.info("Данной вещи с Id = {} нет в базе", itemId);
+            throw new NotFoundException("Вещи с указанным Id не существует");
+        }
     }
 
     public List<Item> searchAvailableItems(String text) {
@@ -60,7 +96,7 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         } else {
             log.debug("Вызван метод поиска доступной вещи");
-            return itemStorage.searchAvailableItems(text);
+            return itemRepository.searchAvailableItems(text);
         }
     }
 }

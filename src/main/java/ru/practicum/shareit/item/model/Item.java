@@ -1,29 +1,41 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.*;
-import ru.practicum.shareit.request.ItemRequest;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
+@Entity
+@Table(name = "items")
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 public class Item {
-
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long itemId; // идентификатор в базе
-    private String itemName; // наименование
+    private String name; // наименование
     private String description; // описание
+    @Column(name = "owner_id")
     private long owner; // номер пользователя которому принадлежит вещь
     private Boolean status; // статус вещи: доступна не доступна
-    private ItemRequest request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса
+    @Column(name = "request_id")
+    private Long request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса
+    @Transient
     private List<Comment> comments = new ArrayList<>(); // список комментариев
 
-    public Item(String itemName, String description, Boolean status) {
-        this.itemName = itemName;
+
+    public Item(String name, String description, Boolean status) {
+        this.name = name;
         this.description = description;
         this.status = status;
     }

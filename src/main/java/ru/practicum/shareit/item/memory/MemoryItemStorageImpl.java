@@ -1,9 +1,8 @@
-package ru.practicum.shareit.item.impl;
+package ru.practicum.shareit.item.memory;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
@@ -32,9 +31,9 @@ public class MemoryItemStorageImpl implements ItemStorage {
         Item saved = items.get(itemId);
         if (saved != null) {
             if (saved.getOwner() == userId) {
-                if (item.getItemName() != null) {
+                if (item.getName() != null) {
                     log.info("Название вещи с Id = {} обновлено", itemId);
-                    saved.setItemName(item.getItemName());
+                    saved.setName(item.getName());
                 }
                 if (item.getDescription() != null) {
                     log.info("Описание вещи с Id = {} обновлено", itemId);
@@ -80,7 +79,7 @@ public class MemoryItemStorageImpl implements ItemStorage {
         log.info("Список доступных вещей в которых встречается запрос {} успешно выведен", text);
         return items.values().stream()
                 .filter(item -> item.getStatus().equals(true))
-                .filter(item -> (item.getItemName().toLowerCase().contains(lowerCaseText)) |
+                .filter(item -> (item.getName().toLowerCase().contains(lowerCaseText)) |
                         (item.getDescription().toLowerCase().contains(lowerCaseText)))
                 .collect(Collectors.toList());
     }

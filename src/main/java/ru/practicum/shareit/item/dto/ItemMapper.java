@@ -8,11 +8,11 @@ import ru.practicum.shareit.item.model.Item;
 public interface ItemMapper {
 
     @Mapping(source = "itemId", target = "id")
-    @Mapping(source = "itemName", target = "name")
+    @Mapping(source = "name", target = "name")
     @Mapping(source = "status", target = "available")
     ItemDto toItemDto(Item item);
 
-    @Mapping(source = "name", target = "itemName")
+    @Mapping(source = "name", target = "name")
     @Mapping(source = "available", target = "status")
     Item toItem(ItemDto itemDto);
 }

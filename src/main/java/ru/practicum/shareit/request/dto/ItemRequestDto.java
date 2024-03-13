@@ -22,7 +22,7 @@ public class ItemRequestDto {
 
     public ItemRequestDto(String description, User requestor, LocalDateTime create) {
         this.description = description;
-        this.requestorId = requestor.getUserId();
+        this.requestorId = requestor.getId();
         this.create = create;
     }
 }
