@@ -39,9 +39,9 @@ public class MemoryItemStorageImpl implements ItemStorage {
                     log.info("Описание вещи с Id = {} обновлено", itemId);
                     saved.setDescription(item.getDescription());
                 }
-                if (item.getStatus() != null) {
+                if (item.getIsAvailable() != null) {
                     log.info("Статус вещи с Id = {} обновлен", itemId);
-                    saved.setStatus(item.getStatus());
+                    saved.setIsAvailable(item.getIsAvailable());
                 }
                 items.put(saved.getItemId(), saved);
                 return saved;
@@ -78,7 +78,7 @@ public class MemoryItemStorageImpl implements ItemStorage {
         String lowerCaseText = text.toLowerCase();
         log.info("Список доступных вещей в которых встречается запрос {} успешно выведен", text);
         return items.values().stream()
-                .filter(item -> item.getStatus().equals(true))
+                .filter(item -> item.getIsAvailable().equals(true))
                 .filter(item -> (item.getName().toLowerCase().contains(lowerCaseText)) |
                         (item.getDescription().toLowerCase().contains(lowerCaseText)))
                 .collect(Collectors.toList());

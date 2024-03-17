@@ -48,8 +48,8 @@ public class ItemServiceImpl implements ItemService {
                 if (item.getDescription() != null) {
                     saved.setDescription(item.getDescription());
                 }
-                if (item.getStatus() != null) {
-                    saved.setStatus(item.getStatus());
+                if (item.getIsAvailable() != null) {
+                    saved.setIsAvailable(item.getIsAvailable());
                 }
                 log.info("Вещь с Id = {} обновлена", itemId);
                 return itemRepository.save(saved);
@@ -90,6 +90,8 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    // Получение списка доступных вещей по поиску
+    @Transactional
     public List<Item> searchAvailableItems(String text) {
         if (text.isBlank()) {
             log.debug("Передан пустой запрос, возвращен пустой список");

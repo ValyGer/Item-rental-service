@@ -1,13 +1,10 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.practicum.shareit.booking.Status;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -18,17 +15,23 @@ import java.time.LocalDateTime;
 @ToString
 @NoArgsConstructor
 public class BookingDto {
+    @EqualsAndHashCode.Exclude
     private Long id;
-    private User booker;
+    @NotNull
+    private long itemId;
+    private long bookerId;
+    @NotNull(message = "Не указано время начала бронирования")
+    @FutureOrPresent(message = "Время начала бронирования не может быть в прошлом")
     private LocalDateTime start;
+    @NotNull(message = "Не указано время конца бронирования")
+    @FutureOrPresent(message = "Время конца бронирования не может быть в прошлом")
     private LocalDateTime end;
     private Status status;
 
-    public BookingDto(Item item, User booker, LocalDateTime start, LocalDateTime end, Status status) {
-        this.id = item.getItemId();
-        this.booker = booker;
+    public BookingDto(long itemId, long bookerId, LocalDateTime start, LocalDateTime end) {
+        this.itemId = itemId;
+        this.bookerId = bookerId;
         this.start = start;
         this.end = end;
-        this.status = status;
     }
 }

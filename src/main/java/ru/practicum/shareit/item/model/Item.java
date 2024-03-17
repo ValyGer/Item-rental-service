@@ -27,16 +27,16 @@ public class Item {
     private String description; // описание
     @Column(name = "owner_id")
     private long owner; // номер пользователя которому принадлежит вещь
-    private Boolean status; // статус вещи: доступна не доступна
+    private Boolean isAvailable; // статус вещи: доступна не доступна
     @Column(name = "request_id")
     private Long request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса
     @Transient
     private List<Comment> comments = new ArrayList<>(); // список комментариев
 
 
-    public Item(String name, String description, Boolean status) {
+    public Item(String name, String description, Boolean isAvailable) {
         this.name = name;
         this.description = description;
-        this.status = status;
+        this.isAvailable = isAvailable;
     }
 }
