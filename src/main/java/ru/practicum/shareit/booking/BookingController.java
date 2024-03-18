@@ -26,12 +26,22 @@ public class BookingController {
                                                             @Valid @RequestBody BookingDto bookingDto) {
         bookingDto.setBookerId(bookerId);
         Booking booking = bookingMapper.toBooking(bookingDto);
-        return ResponseEntity.ok().body(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService.createBooking(booking)));
+        return ResponseEntity.ok().body(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService
+                .createBooking(booking)));
     }
 
-    @GetMapping("/{bookingId}")
-    public ResponseEntity<BookingDto> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
+    @PatchMapping("/{bookingId}") // Подтверждение или отклонении бронирования
+    public ResponseEntity<BookingDtoWithItem> setApprovedByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                         @PathVariable long bookingId,
+                                                         @RequestParam Boolean approved) {
+        return ResponseEntity.ok().body(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService
+                .setApprovedByOwner(userId, bookingId, approved)));
+    }
+
+    @GetMapping("/{bookingId}") // Получение информации о бронировании
+    public ResponseEntity<BookingDtoWithItem> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
                                                      @PathVariable long bookingId) {
-        return ResponseEntity.ok().body(bookingMapper.toBookingDto(bookingService.getBookingById(userId, bookingId)));
+        return ResponseEntity.ok().body(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService
+                .getBookingById(userId, bookingId)));
     }
 }
