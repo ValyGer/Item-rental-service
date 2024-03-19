@@ -57,7 +57,7 @@ public class BookingController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping // Получение списка бронирований для всех вещей текущего пользователя с учетом статуса и даты
+    @GetMapping("/owner") // Получение списка бронирований для всех вещей текущего пользователя с учетом статуса и даты
     public ResponseEntity<List<BookingDtoWithItem>> getAllBookingByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
                                                                         @RequestParam(value = "state",
                                                                                 defaultValue = "ALL", required = false)
