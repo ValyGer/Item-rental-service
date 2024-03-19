@@ -12,11 +12,10 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static ru.practicum.shareit.booking.State.PAST;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
                         } else {
                             booking.get().setStatus(Status.APPROVED);
                             log.info("Бронирование успешно подтверждено одобрено");
-                            return booking.get();
+                            return bookingRepository.save(booking.get());
                         }
                     } else {
                         if (booking.get().getStatus().equals(Status.REJECTED)) {
@@ -128,69 +127,115 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-
-    // Получение всех бронирований пользователя
+    // Получение списка всех бронирований текущего пользователя
     public List<Booking> getAllBookingByUser(long userId, String state) {
+        // Проверка параметра state
         State stateOfBooking;
-        try {
-            stateOfBooking = State.valueOf(state);
-        } catch (IllegalArgumentException ex) {
-            log.info("Введенный статус не доступен");
-            throw new NotFoundException("Введенный адрес не доступен");
+        if (state.isBlank()) {
+            stateOfBooking = State.ALL;
+        } else {
+            try {
+                stateOfBooking = State.valueOf(state);
+            } catch (RuntimeException ex) {
+                log.info("Введенный статус не существует");
+                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
+            }
         }
-
-
         List<Booking> listOfBooking = new ArrayList<>();
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
-
             switch (stateOfBooking) {
-                case All: {
-                    listOfBooking = bookingRepositoryJpa.findAllByItem_OwnerOrderByStartTimeDesc(bookerFromDb);
+                case ALL: {
+                    listOfBooking = bookingRepository.findBookingsByBooker_IdOrderByStartDesc(user.get().getId());
                     break;
                 }
                 case CURRENT: {
-                    listOfBooking = bookingRepositoryJpa.findAllBookingsItemByForOwnerWithStartAndEndTime(
-                            bookerFromDb, nowDateTime, nowDateTime);
+                    listOfBooking = bookingRepository.findAllBookingsForBookerWithStartAndEnd(
+                            user.get().getId(), LocalDateTime.now(), LocalDateTime.now());
                     break;
                 }
                 case PAST: {
-                    listOfBooking = bookingRepositoryJpa.findAllByItem_OwnerAndEndTimeIsBeforeOrderByStartTimeDesc(
-                            bookerFromDb, nowDateTime);
+                    listOfBooking = bookingRepository.findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(
+                            user.get().getId(), LocalDateTime.now());
                     break;
                 }
                 case FUTURE: {
-                    listOfBooking = bookingRepositoryJpa.findAllByItem_OwnerAndStartTimeIsAfterOrderByStartTimeDesc(
-                            bookerFromDb, nowDateTime);
+                    listOfBooking = bookingRepository.findAllByBooker_IdAndStartIsAfterOrderByStartDesc(
+                            user.get().getId(), LocalDateTime.now());
                     break;
                 }
                 case WAITING: {
-                    listOfBooking = bookingRepositoryJpa.findAllByItem_OwnerAndBookingStatusEqualsOrderByStartTimeDesc(
-                            bookerFromDb, BookingStatus.WAITING);
+                    listOfBooking = bookingRepository.findAllByBooker_IdAndStatusEqualsOrderByStartDesc(
+                            user.get().getId(), State.WAITING);
                     break;
                 }
                 case REJECTED: {
-                    listOfBooking = bookingRepositoryJpa.findAllByItem_OwnerAndBookingStatusEqualsOrderByStartTimeDesc(
-                            bookerFromDb, BookingStatus.REJECTED);
+                    listOfBooking = bookingRepository.findAllByBooker_IdAndStatusEqualsOrderByStartDesc(
+                            user.get().getId(), State.REJECTED);
                     break;
                 }
-                default: {
-                    throw new NotFoundException("Unknown state: UNSUPPORTED_STATUS");
-                }
             }
-            return result.stream()
-                    .map(bookingForResponseMapper::mapToDto).collect(Collectors.toList());
-        }
-
-
-
-
-
-
+            return listOfBooking;
         } else {
             log.info("Пользователь с Id = {} не существует в базе", userId);
             throw new NotFoundException("Пользователь не найден");
+        }
     }
-}
 
+
+
+    // Получение списка бронирований для всех вещей текущего пользователя
+    public List<Booking> getAllBookingByOwner(long userId, String state) {
+        // Проверка параметра state
+        State stateOfBooking;
+        if (state.isBlank()) {
+            stateOfBooking = State.ALL;
+        } else {
+            try {
+                stateOfBooking = State.valueOf(state);
+            } catch (RuntimeException ex) {
+                log.info("Введенный статус не существует");
+                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
+            }
+        }
+        List<Booking> listOfBooking = new ArrayList<>();
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isPresent()) {
+            switch (stateOfBooking) {
+                case ALL: {
+                    listOfBooking = bookingRepository.findAllByItem_OwnerOrderByStartDesc(user.get().getId());
+                    break;
+                }
+                case CURRENT: {
+                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(
+                            user.get().getId(), LocalDateTime.now(), LocalDateTime.now());
+                    break;
+                }
+                case PAST: {
+                    listOfBooking = bookingRepository.findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(
+                            user.get().getId(), LocalDateTime.now());
+                    break;
+                }
+                case FUTURE: {
+                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStartIsAfterOrderByStartDesc(
+                            user.get().getId(), LocalDateTime.now());
+                    break;
+                }
+                case WAITING: {
+                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStatusEqualsOrderByStartDesc(
+                            user.get().getId(), State.WAITING);
+                    break;
+                }
+                case REJECTED: {
+                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStatusEqualsOrderByStartDesc(
+                            user.get().getId(), State.REJECTED);
+                    break;
+                }
+            }
+            return listOfBooking;
+        } else {
+            log.info("Пользователь с Id = {} не существует в базе", userId);
+            throw new NotFoundException("Пользователь не найден");
+        }
+    }
 }

@@ -9,6 +9,8 @@ import ru.practicum.shareit.booking.dto.BookingDtoWithItemMapper;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * TODO Sprint add-bookings.
@@ -32,16 +34,36 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}") // Подтверждение или отклонении бронирования
     public ResponseEntity<BookingDtoWithItem> setApprovedByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                         @PathVariable long bookingId,
-                                                         @RequestParam Boolean approved) {
+                                                                 @PathVariable long bookingId,
+                                                                 @RequestParam Boolean approved) {
         return ResponseEntity.ok().body(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService
                 .setApprovedByOwner(userId, bookingId, approved)));
     }
 
     @GetMapping("/{bookingId}") // Получение информации о бронировании
     public ResponseEntity<BookingDtoWithItem> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                     @PathVariable long bookingId) {
+                                                             @PathVariable long bookingId) {
         return ResponseEntity.ok().body(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService
                 .getBookingById(userId, bookingId)));
+    }
+
+    @GetMapping // Получение информации о всех бронированиях для данного пользователя с учетом статуса и даты
+    public ResponseEntity<List<BookingDtoWithItem>> getAllBookingByUser(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                                        @RequestParam(value = "state",
+                                                                                defaultValue = "ALL", required = false)
+                                                                        String state) {
+        return ResponseEntity.ok().body(bookingService.getAllBookingByUser(userId, state).stream()
+                .map(bookingDtoWithItemMapper::toBookingDtoWithItem)
+                .collect(Collectors.toList()));
+    }
+
+    @GetMapping // Получение списка бронирований для всех вещей текущего пользователя с учетом статуса и даты
+    public ResponseEntity<List<BookingDtoWithItem>> getAllBookingByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                                        @RequestParam(value = "state",
+                                                                                defaultValue = "ALL", required = false)
+                                                                        String state) {
+        return ResponseEntity.ok().body(bookingService.getAllBookingByOwner(userId, state).stream()
+                .map(bookingDtoWithItemMapper::toBookingDtoWithItem)
+                .collect(Collectors.toList()));
     }
 }
