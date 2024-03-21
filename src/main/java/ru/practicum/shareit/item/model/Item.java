@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.shareit.booking.model.Booking;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -30,9 +31,10 @@ public class Item {
     private Boolean isAvailable; // статус вещи: доступна не доступна
     @Column(name = "request_id")
     private Long request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса
-    @Transient
+    @OneToMany(mappedBy = "item")
     private List<Comment> comments = new ArrayList<>(); // список комментариев
-
+    @OneToMany(mappedBy = "item")
+    private List<Booking> bookings; // список бронирований данной вещи
 
     public Item(String name, String description, Boolean isAvailable) {
         this.name = name;

@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.*;
-import ru.practicum.shareit.exceptions.ConflictException;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -48,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
                     }
                 } else {
                     log.info("Пользователь не может арендовать у себя");
-                    throw new ConflictException("Пользователь не может арендовать у себя");
+                    throw new NotFoundException("Пользователь не может арендовать у себя");
                 }
             } else {
                 log.info("Вещь с Id = {} не существует в базе", booking.getItem().getItemId());
@@ -66,28 +68,29 @@ public class BookingServiceImpl implements BookingService {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
             // проверка наличия бронирования
-            Optional<Booking> booking = bookingRepository.findById(bookingId);
-            if (booking.isPresent()) {
+            Optional<Booking> bookingOpt = bookingRepository.findById(bookingId);
+            if (bookingOpt.isPresent()) {
                 // проверка на то, что пользователь является владельцем вещи
-                if (booking.get().getItem().getOwner() == userId) {
+                if (bookingOpt.get().getItem().getOwner() == userId) {
                     // проверка статуса бронирования
                     if (approved) {
-                        if (booking.get().getStatus().equals(Status.APPROVED)) {
+                        if (bookingOpt.get().getStatus().equals(Status.APPROVED)) {
                             log.info("Бронирование уже подтверждено, при необходимости можно отменить его");
                             throw new ValidationException("Бронирование уже подтверждено, при необходимости можно отменить его");
                         } else {
-                            booking.get().setStatus(Status.APPROVED);
+                            Booking booking = bookingOpt.get();
+                            booking.setStatus(Status.APPROVED);
                             log.info("Бронирование успешно подтверждено одобрено");
-                            return bookingRepository.save(booking.get());
+                            return bookingRepository.save(booking);
                         }
                     } else {
-                        if (booking.get().getStatus().equals(Status.REJECTED)) {
+                        if (bookingOpt.get().getStatus().equals(Status.REJECTED)) {
                             log.info("Бронирование отменено, изменение статуса повторно не возможно");
                             throw new ValidationException("Бронирование отменено, изменение статуса повторно не возможно");
                         } else {
-                            booking.get().setStatus(Status.REJECTED);
+                            bookingOpt.get().setStatus(Status.REJECTED);
                             log.info("Бронирование успешно отменено");
-                            return booking.get();
+                            return bookingOpt.get();
                         }
                     }
                 } else {
@@ -181,8 +184,6 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Пользователь не найден");
         }
     }
-
-
 
     // Получение списка бронирований для всех вещей текущего пользователя
     public List<Booking> getAllBookingByOwner(long userId, String state) {

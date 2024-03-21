@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItem;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItemMapper;
 import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 
 import javax.validation.Valid;
 import java.util.List;

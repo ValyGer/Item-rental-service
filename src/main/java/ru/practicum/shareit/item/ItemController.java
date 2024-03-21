@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
@@ -46,8 +47,9 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}") // Получение вещи по Id
-    public ResponseEntity<ItemDto> getItemsById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
-        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.getItemsById(userId, itemId)));
+    public ResponseEntity<ItemDtoForBookingAndComments> getItemWithBooker(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                                          @PathVariable long itemId) {
+        return ResponseEntity.ok().body(itemService.getItemWithBooker(itemId, userId));
     }
 
     @GetMapping("/search") // Поиск вещи по строке text
@@ -57,4 +59,6 @@ public class ItemController {
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
     }
+
+
 }
