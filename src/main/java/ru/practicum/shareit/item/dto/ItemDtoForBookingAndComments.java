@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.dto.BookingLastNextDto;
 
 @Getter
 @Setter
@@ -14,15 +14,15 @@ public class ItemDtoForBookingAndComments {
     private Long id;
     private String name;
     private String description;
-    private String status;
-    private Booking lastBooking;
-    private Booking nextBooking;
+    private Boolean available;
+    private BookingLastNextDto lastBooking;
+    private BookingLastNextDto nextBooking;
 
-    public ItemDtoForBookingAndComments(Long id, String name, String description, String status) {
+    public ItemDtoForBookingAndComments(Long id, String name, String description, Boolean available) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.status = status;
+        this.available = available;
     }
 }
 

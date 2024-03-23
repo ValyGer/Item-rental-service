@@ -39,11 +39,8 @@ public class ItemController {
     }
 
     @GetMapping // Получение списка вещей пользователя
-    public ResponseEntity<List<ItemDto>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") long userId) {
-        return ResponseEntity.ok().body(itemService.getAllItemsUser(userId)
-                .stream()
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList()));
+    public ResponseEntity<List<ItemDtoForBookingAndComments>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") long userId) {
+        return ResponseEntity.ok().body(itemService.getAllItemsUser(userId));
     }
 
     @GetMapping("/{itemId}") // Получение вещи по Id

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
+import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,7 +55,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // Возвращает список вещей пользователя
     @Query("select b " +
             "from Booking b " +
-            "where b.item.owner = ?1 and b.end < ?2 " +
+            "where b.item = ?1 " +
             "order by b.start desc")
-    List<Booking> findAllByItemOrderByStartDesc(long itemId);
+    List<Booking> findAllByItemOrderByStartDesc(Item item);
 }
