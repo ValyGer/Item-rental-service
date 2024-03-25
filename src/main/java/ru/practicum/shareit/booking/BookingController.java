@@ -48,22 +48,24 @@ public class BookingController {
                 .getBookingById(userId, bookingId)));
     }
 
-    @GetMapping // Получение информации о всех бронированиях для данного пользователя с учетом статуса и даты
+    @GetMapping // Получение списка бронирований для данного пользователя с учетом статуса и даты
     public ResponseEntity<List<BookingDtoWithItem>> getAllBookingByUser(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                                        @RequestParam(value = "state",
-                                                                                defaultValue = "ALL", required = false)
-                                                                        String state) {
-        return ResponseEntity.ok().body(bookingService.getAllBookingByUser(userId, state).stream()
+                                                                        @RequestParam(value = "state", defaultValue = "ALL",
+                                                                                required = false) String state,
+                                                                        @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                                        @RequestParam(required = false, defaultValue = "20") Integer size) {
+        return ResponseEntity.ok().body(bookingService.getAllBookingByUser(from, size, userId, state).stream()
                 .map(bookingDtoWithItemMapper::toBookingDtoWithItem)
                 .collect(Collectors.toList()));
     }
 
     @GetMapping("/owner") // Получение списка бронирований для всех вещей текущего пользователя с учетом статуса и даты
-    public ResponseEntity<List<BookingDtoWithItem>> getAllBookingByOwner(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                                        @RequestParam(value = "state",
-                                                                                defaultValue = "ALL", required = false)
-                                                                        String state) {
-        return ResponseEntity.ok().body(bookingService.getAllBookingByOwner(userId, state).stream()
+    public ResponseEntity<List<BookingDtoWithItem>> getAllBookingByOwner(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                                                                         @RequestParam(value = "state", defaultValue = "ALL",
+                                                                                 required = false) String state,
+                                                                         @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                                         @RequestParam(required = false, defaultValue = "20") Integer size) {
+        return ResponseEntity.ok().body(bookingService.getAllBookingByOwner(from, size, ownerId, state).stream()
                 .map(bookingDtoWithItemMapper::toBookingDtoWithItem)
                 .collect(Collectors.toList()));
     }

@@ -2,8 +2,10 @@ package ru.practicum.shareit.booking.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.*;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
@@ -88,9 +90,10 @@ public class BookingServiceImpl implements BookingService {
                             log.info("Бронирование отменено, изменение статуса повторно не возможно");
                             throw new ValidationException("Бронирование отменено, изменение статуса повторно не возможно");
                         } else {
-                            bookingOpt.get().setStatus(Status.REJECTED);
+                            Booking booking = bookingOpt.get();
+                            booking.setStatus(Status.REJECTED);
                             log.info("Бронирование успешно отменено");
-                            return bookingOpt.get();
+                            return bookingRepository.save(booking);
                         }
                     }
                 } else {
@@ -131,14 +134,19 @@ public class BookingServiceImpl implements BookingService {
     }
 
     // Получение списка всех бронирований текущего пользователя
-    public List<Booking> getAllBookingByUser(long userId, String state) {
+    public List<Booking> getAllBookingByUser(int from, int size, long userId, String state) {
+        // проверяем отрицательный ли параметр
+        if (from < 0) {
+            throw new ValidationException("Значение не может быть отрицательным");
+        }
+        PageRequest pageRequest = PageRequest.of(from / size, size);
         // Проверка параметра state
         State stateOfBooking;
         if (state.isBlank()) {
             stateOfBooking = State.ALL;
         } else {
             try {
-                stateOfBooking = State.valueOf(state);
+                stateOfBooking = State.valueOf(state.toUpperCase());
             } catch (RuntimeException ex) {
                 log.info("Введенный статус не существует");
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
@@ -149,32 +157,32 @@ public class BookingServiceImpl implements BookingService {
         if (user.isPresent()) {
             switch (stateOfBooking) {
                 case ALL: {
-                    listOfBooking = bookingRepository.findBookingsByBooker_IdOrderByStartDesc(user.get().getId());
+                    listOfBooking = bookingRepository.findBookingsByBooker_IdOrderByStartDesc(user.get().getId(), pageRequest);
                     break;
                 }
                 case CURRENT: {
                     listOfBooking = bookingRepository.findAllBookingsForBookerWithStartAndEnd(
-                            user.get().getId(), LocalDateTime.now(), LocalDateTime.now());
+                            user.get().getId(), LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                     break;
                 }
                 case PAST: {
                     listOfBooking = bookingRepository.findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(
-                            user.get().getId(), LocalDateTime.now());
+                            user.get().getId(), LocalDateTime.now(), pageRequest);
                     break;
                 }
                 case FUTURE: {
                     listOfBooking = bookingRepository.findAllByBooker_IdAndStartIsAfterOrderByStartDesc(
-                            user.get().getId(), LocalDateTime.now());
+                            user.get().getId(), LocalDateTime.now(), pageRequest);
                     break;
                 }
                 case WAITING: {
-                    listOfBooking = bookingRepository.findAllByBooker_IdAndStatusEqualsOrderByStartDesc(
-                            user.get().getId(), State.WAITING);
+                    listOfBooking = bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(
+                            user.get().getId(), Status.WAITING, pageRequest);
                     break;
                 }
                 case REJECTED: {
-                    listOfBooking = bookingRepository.findAllByBooker_IdAndStatusEqualsOrderByStartDesc(
-                            user.get().getId(), State.REJECTED);
+                    listOfBooking = bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(
+                            user.get().getId(), Status.REJECTED, pageRequest);
                     break;
                 }
             }
@@ -186,56 +194,62 @@ public class BookingServiceImpl implements BookingService {
     }
 
     // Получение списка бронирований для всех вещей текущего пользователя
-    public List<Booking> getAllBookingByOwner(long userId, String state) {
+    public List<Booking> getAllBookingByOwner(int from, int size, long ownerId, String state) {
+        // проверяем отрицательный ли параметр
+        if (from < 0) {
+            throw new ValidationException("Значение не может быть отрицательным");
+        }
+        PageRequest pageRequest = PageRequest.of(from / size, size);
         // Проверка параметра state
         State stateOfBooking;
         if (state.isBlank()) {
             stateOfBooking = State.ALL;
         } else {
             try {
-                stateOfBooking = State.valueOf(state);
+                stateOfBooking = State.valueOf(state.toUpperCase());
             } catch (RuntimeException ex) {
                 log.info("Введенный статус не существует");
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
             }
         }
         List<Booking> listOfBooking = new ArrayList<>();
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
+
+        Optional<User> owner = userRepository.findById(ownerId);
+        if (owner.isPresent()) {
             switch (stateOfBooking) {
                 case ALL: {
-                    listOfBooking = bookingRepository.findAllByItem_OwnerOrderByStartDesc(user.get().getId());
+                    listOfBooking = bookingRepository.findAllByItem_OwnerOrderByStartDesc(owner.get().getId(), pageRequest);
                     break;
                 }
                 case CURRENT: {
                     listOfBooking = bookingRepository.findAllByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(
-                            user.get().getId(), LocalDateTime.now(), LocalDateTime.now());
+                            owner.get().getId(), LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                     break;
                 }
                 case PAST: {
                     listOfBooking = bookingRepository.findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(
-                            user.get().getId(), LocalDateTime.now());
+                            owner.get().getId(), LocalDateTime.now(), pageRequest);
                     break;
                 }
                 case FUTURE: {
                     listOfBooking = bookingRepository.findAllByItem_OwnerAndStartIsAfterOrderByStartDesc(
-                            user.get().getId(), LocalDateTime.now());
+                            owner.get().getId(), LocalDateTime.now(), pageRequest);
                     break;
                 }
                 case WAITING: {
-                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStatusEqualsOrderByStartDesc(
-                            user.get().getId(), State.WAITING);
+                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(
+                            owner.get().getId(), Status.WAITING, pageRequest);
                     break;
                 }
                 case REJECTED: {
-                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStatusEqualsOrderByStartDesc(
-                            user.get().getId(), State.REJECTED);
+                    listOfBooking = bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(
+                            owner.get().getId(), Status.REJECTED, pageRequest);
                     break;
                 }
             }
             return listOfBooking;
         } else {
-            log.info("Пользователь с Id = {} не существует в базе", userId);
+            log.info("Пользователь с Id = {} не существует в базе", ownerId);
             throw new NotFoundException("Пользователь не найден");
         }
     }
