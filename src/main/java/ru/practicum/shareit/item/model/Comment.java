@@ -31,4 +31,8 @@ public class Comment {
     private User author; // номер пользователя которому принадлежит комментарий
     @Column(name = "created")
     private LocalDateTime create; // дата и время создания комментария
+
+    public Comment(String text) {
+        this.text = text;
+    }
 }

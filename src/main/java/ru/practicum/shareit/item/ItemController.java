@@ -4,9 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
@@ -23,6 +21,7 @@ public class ItemController {
 
     private final ItemService itemService;
     private final ItemMapper itemMapper;
+    private final CommentMapper commentMapper;
 
     @PostMapping // Создание новой вещи
     public ResponseEntity<ItemDto> createItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
@@ -55,5 +54,12 @@ public class ItemController {
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
+    }
+
+    @PostMapping("/{itemId}/comment") // Добавление комментариев
+    public ResponseEntity<CommentDto> addCommentToItem(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                       @PathVariable long itemId,
+                                                       @RequestBody CommentDto textForCommentDto) {
+        return null;//ResponseEntity.ok().body(commentMapper.toCommentDto(itemService.addComment(userId, itemId, textForCommentDto)));
     }
 }
