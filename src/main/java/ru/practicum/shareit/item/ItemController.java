@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
@@ -58,8 +59,9 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment") // Добавление комментариев
     public ResponseEntity<CommentDto> addCommentToItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                       @PathVariable long itemId,
-                                                       @RequestBody CommentDto textForCommentDto) {
-        return null;//ResponseEntity.ok().body(commentMapper.toCommentDto(itemService.addComment(userId, itemId, textForCommentDto)));
+                                                       @Valid @RequestBody CommentDto commentDto,
+                                                       @PathVariable long itemId) {
+        Comment comment = commentMapper.toComment(commentDto);
+        return ResponseEntity.ok().body(commentMapper.toCommentDto(itemService.addComment(userId, itemId, comment)));
     }
 }

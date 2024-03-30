@@ -11,6 +11,7 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @Setter
 @ToString
@@ -21,7 +22,7 @@ public class Comment {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long commentId; // идентификатор комментария
+    private long id; // идентификатор комментария
     private String text; // содержание комментария
     @ManyToOne
     @JoinColumn(name = "item_id")
