@@ -15,12 +15,12 @@ public class CommentDto {
     @NotBlank
     private String text; // содержание комментария
     private String authorName; // номер пользователя которому принадлежит комментарий
-    private LocalDateTime create;
+    private LocalDateTime created;
 
-    public CommentDto(long id, String text, String authorName, LocalDateTime create) {
+    public CommentDto(long id, String text, String authorName, LocalDateTime created) {
         this.id = id;
         this.text = text;
         this.authorName = authorName;
-        this.create = create;
+        this.created = created;
     }
 }

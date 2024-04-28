@@ -25,7 +25,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "from Booking b " +
             "where b.booker = ?1 and b.start < ?2 and b.end > ?3 " +
             "order by b.start DESC")
-    List<Booking> findAllBookingsForBookerWithStartAndEnd(long id, LocalDateTime now, LocalDateTime now1, PageRequest pageRequest);
+    List<Booking> findAllBookingsForBookerWithStartAndEnd(User user, LocalDateTime now, LocalDateTime now1, PageRequest pageRequest);
 
     List<Booking> findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(long id, LocalDateTime now, PageRequest pageRequest);
 
@@ -35,7 +35,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 
     // ---Для обработки getAllBookingByOwner
-    // Получаем список бронирований отсортированных по времени
+    // Получаем, список бронирований отсортированных по времени
     List<Booking> findAllByItem_OwnerOrderByStartDesc(long userId, PageRequest pageRequest);
 
     // Возвращает список бронирования вещей которые имеются на данный момент время отсортированных по времени

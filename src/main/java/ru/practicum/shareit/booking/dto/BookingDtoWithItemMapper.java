@@ -14,6 +14,12 @@ public interface BookingDtoWithItemMapper {
     @Mapping(source = "booker.id", target = "booker.id")
     BookingDtoWithItem toBookingDtoWithItem(Booking booking);
 
+
+    @Mapping(source = "bookingId", target = "id")
+    @Mapping(source = "item", target = "item", qualifiedBy = ItemToItemDto.class)
+    @Mapping(source = "booker.id", target = "booker.id")
+    BookingDtoWithItem toBookingDtoWithItemNotTime(Booking booking);
+
     @ItemToItemDto
     static ItemDtoForBooking itemToItemDto(Item item) {
         ItemDtoForBooking itemDtoForBooking = new ItemDtoForBooking();

@@ -54,9 +54,7 @@ public class BookingController {
                                                                                 required = false) String state,
                                                                         @RequestParam(required = false, defaultValue = "0") Integer from,
                                                                         @RequestParam(required = false, defaultValue = "20") Integer size) {
-        return ResponseEntity.ok().body(bookingService.getAllBookingByUser(from, size, userId, state).stream()
-                .map(bookingDtoWithItemMapper::toBookingDtoWithItem)
-                .collect(Collectors.toList()));
+        return ResponseEntity.ok().body(bookingService.getAllBookingByUser(from, size, userId, state));
     }
 
     @GetMapping("/owner") // Получение списка бронирований для всех вещей текущего пользователя с учетом статуса и даты

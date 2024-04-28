@@ -156,31 +156,29 @@ public class ItemServiceImpl implements ItemService {
         if (item.isPresent()) {
             Optional<User> user = userRepository.findById(ownerId);
             if (user.isPresent()) {
+                ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
+                        .toItemDtoForBookingAndComments(item.get());
                 if (item.get().getOwner() == ownerId) {
-                    ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
-                            .toItemDtoForBookingAndComments(item.get());
                     LocalDateTime timeNow = LocalDateTime.now();
-
                     BookingLastNextDto lastBooking = getLastBooking(item.get(), timeNow);
                     BookingLastNextDto nextBooking = getNextBooking(item.get(), timeNow);
                     itemFromBd.setLastBooking(lastBooking);
                     itemFromBd.setNextBooking(nextBooking);
-
-                    List<Comment> commentsAboutItem = commentRepository.findAllByItemOrderByItem(item.get());
-                    if (commentsAboutItem.isEmpty()) {
-                        List<CommentDto> comments = new ArrayList<>();
-                        itemFromBd.setComments(comments);
-                    } else {
-                        itemFromBd.setComments(commentsAboutItem.stream()
-                                .map(commentMapper::toCommentDto).collect(Collectors.toList()));
-                    }
-                    log.info("Список комментариев получен");
-                    return itemFromBd;
                 } else {
                     log.info("Пользователь с Id = {} не является владельцев вещи, информация по бронированию не нужна", ownerId);
-                    return itemDtoForBookingAndCommentsMapper
-                            .toItemDtoForBookingAndComments(item.get());
                 }
+                //Добавление комментариев
+                List<Comment> commentsAboutItem = commentRepository.findAllByItemOrderByItem(item.get());
+                if (commentsAboutItem.isEmpty()) {
+                    List<CommentDto> comments = new ArrayList<>();
+                    itemFromBd.setComments(comments);
+                } else {
+                    itemFromBd.setComments(commentsAboutItem.stream()
+                            .map(commentMapper::toCommentDto).collect(Collectors.toList()));
+                }
+                log.info("Список комментариев получен");
+
+                return itemFromBd;
             } else {
                 log.info("Пользователь с Id = {} не существует в базе", ownerId);
                 throw new NotFoundException("Пользователь не найден");
@@ -259,4 +257,3 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 }
-

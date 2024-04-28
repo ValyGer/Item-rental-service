@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.model.User;
 public interface CommentMapper {
 
     @Mapping(source = "author", target = "authorName", qualifiedBy = CommentToCommentDto.class)
+    @Mapping(source = "create", target = "created")
     CommentDto toCommentDto(Comment comment);
 
     @CommentToCommentDto
