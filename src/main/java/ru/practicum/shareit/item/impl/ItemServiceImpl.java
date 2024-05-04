@@ -158,6 +158,9 @@ public class ItemServiceImpl implements ItemService {
             if (user.isPresent()) {
                 ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
                         .toItemDtoForBookingAndComments(item.get());
+
+                System.out.println(item.get());
+
                 if (item.get().getOwner() == ownerId) {
                     LocalDateTime timeNow = LocalDateTime.now();
                     BookingLastNextDto lastBooking = getLastBooking(item.get(), timeNow);
@@ -195,7 +198,8 @@ public class ItemServiceImpl implements ItemService {
         Booking nextBooking = null;
         if (allBookingForItem != null && !allBookingForItem.isEmpty()) {
             for (Booking b : allBookingForItem) {
-                if (b.getStart().isAfter(timeNow) && (b.getStatus().equals(Status.APPROVED))) {
+                if (b.getStart().isAfter(timeNow) && (b.getStatus().equals(Status.APPROVED))
+                        || (b.getStatus().equals(Status.WAITING))) {
                     if (nextBooking == null) {
                         nextBooking = b;
                     } else if (b.getStart().isBefore(nextBooking.getStart())) {
@@ -214,7 +218,7 @@ public class ItemServiceImpl implements ItemService {
         Booking lastBooking = null;
         if (allBookingForItem != null && !allBookingForItem.isEmpty()) {
             for (Booking b : allBookingForItem) {
-                if (b.getEnd().isBefore(timeNow)) {
+                if (b.getStart().isBefore(timeNow)) {
                     if (lastBooking == null && (b.getStatus().equals(Status.APPROVED))) {
                         lastBooking = b;
                     } else if (lastBooking == null) {
