@@ -68,7 +68,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    // Подтверждение или отклонении бронирования
+    // Подтверждение или отклонение бронирования
     public Booking setApprovedByOwner(long userId, long bookingId, Boolean approved) {
         // проверка пользователя бронирования
         Optional<User> user = userRepository.findById(userId);
