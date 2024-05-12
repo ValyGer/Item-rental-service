@@ -26,6 +26,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -37,10 +41,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -86,11 +86,11 @@
 			<version>5.6.14.Final</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.jacoco</groupId>
-			<artifactId>jacoco-maven-plugin</artifactId>
-			<version>0.8.8</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.jacoco</groupId>-->
+<!--			<artifactId>jacoco-maven-plugin</artifactId>-->
+<!--			<version>0.8.8</version>-->
+<!--		</dependency>-->
 
 	</dependencies>
 
