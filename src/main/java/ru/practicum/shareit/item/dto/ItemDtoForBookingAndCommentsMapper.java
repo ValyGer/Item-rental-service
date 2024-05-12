@@ -5,14 +5,11 @@ import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.model.Item;
 
 @Mapper(componentModel = "spring")
-public interface ItemMapper {
+public interface ItemDtoForBookingAndCommentsMapper {
 
     @Mapping(source = "itemId", target = "id")
     @Mapping(source = "name", target = "name")
+    @Mapping(source = "description", target = "description")
     @Mapping(source = "isAvailable", target = "available")
-    ItemDto toItemDto(Item item);
-
-    @Mapping(source = "name", target = "name")
-    @Mapping(source = "available", target = "isAvailable")
-    Item toItem(ItemDto itemDto);
+    ItemDtoForBookingAndComments toItemDtoForBookingAndComments(Item item);
 }
