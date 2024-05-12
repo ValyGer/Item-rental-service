@@ -92,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
         if (user.isPresent()) {
             log.info("Пользователь с Id = {} существует в базе", userId);
 
-            List<Item> items = itemRepository.findItemsByOwner(userId);
+            List<Item> items = itemRepository.findItemsByOwnerOrderByItemIdAsc(userId);
             List<ItemDtoForBookingAndComments> allItemByUser = new ArrayList<>();
             LocalDateTime now = LocalDateTime.now();
             for (Item item : items) {
@@ -158,9 +158,6 @@ public class ItemServiceImpl implements ItemService {
             if (user.isPresent()) {
                 ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
                         .toItemDtoForBookingAndComments(item.get());
-
-                System.out.println(item.get());
-
                 if (item.get().getOwner() == ownerId) {
                     LocalDateTime timeNow = LocalDateTime.now();
                     BookingLastNextDto lastBooking = getLastBooking(item.get(), timeNow);

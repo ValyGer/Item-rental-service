@@ -28,6 +28,7 @@ public class Item {
     private String description; // описание
     @Column(name = "owner_id")
     private long owner; // номер пользователя которому принадлежит вещь
+    @Column(name = "status")
     private Boolean isAvailable; // статус вещи: доступна не доступна
     @Column(name = "request_id")
     private Long request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса

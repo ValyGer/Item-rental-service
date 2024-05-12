@@ -28,7 +28,7 @@ public class Comment {
     @JoinColumn(name = "item_id")
     private Item item; // вещь на которую оставлен комментарий
     @ManyToOne
-    @JoinColumn(name = "request_id")
+    @JoinColumn(name = "author_id")
     private User author; // номер пользователя которому принадлежит комментарий
     @Column(name = "created")
     private LocalDateTime create; // дата и время создания комментария
