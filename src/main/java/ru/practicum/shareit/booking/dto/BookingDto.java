@@ -18,7 +18,7 @@ public class BookingDto {
     @EqualsAndHashCode.Exclude
     private Long id;
     @NotNull
-    private long itemId;
+    private Long itemId;
     private long bookerId;
     @NotNull(message = "Не указано время начала бронирования")
     @FutureOrPresent(message = "Время начала бронирования не может быть в прошлом")
@@ -28,7 +28,7 @@ public class BookingDto {
     private LocalDateTime end;
     private Status status;
 
-    public BookingDto(long itemId, long bookerId, LocalDateTime start, LocalDateTime end) {
+    public BookingDto(Long itemId, long bookerId, LocalDateTime start, LocalDateTime end) {
         this.itemId = itemId;
         this.bookerId = bookerId;
         this.start = start;
