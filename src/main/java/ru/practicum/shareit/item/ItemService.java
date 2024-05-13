@@ -13,7 +13,7 @@ public interface ItemService {
 
     List<ItemDtoForBookingAndComments> getAllItemsUser(Long userId);
 
-    Item getItemsById(Long userId, Long itemId);
+    Item getItemsById(Long itemId);
 
     List<Item> searchAvailableItems(String text);
 

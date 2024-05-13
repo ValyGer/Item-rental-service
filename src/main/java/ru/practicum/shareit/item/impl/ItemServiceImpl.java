@@ -125,7 +125,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     // Получение вещи по Id
-    public Item getItemsById(Long userId, Long itemId) {
+    public Item getItemsById(Long itemId) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
             log.info("Получена вещь с Id = {}", itemId);
