@@ -1,7 +1,9 @@
 package ru.practicum.shareit.booking.impl;
 
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -25,13 +27,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
+@NoArgsConstructor(force = true)
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     private final ItemService itemService;
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final BookingDtoWithItemMapper bookingDtoWithItemMapper;
+
+    @Autowired
+    @Lazy
+    public BookingServiceImpl(ItemService itemService, UserService userService, BookingRepository bookingRepository, BookingDtoWithItemMapper bookingDtoWithItemMapper) {
+        this.itemService = itemService;
+        this.userService = userService;
+        this.bookingRepository = bookingRepository;
+        this.bookingDtoWithItemMapper = bookingDtoWithItemMapper;
+    }
 
     // Добавление нового бронирования
     public Booking createBooking(Booking booking) {
@@ -244,5 +255,15 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         return listOfBooking;
+    }
+
+    // Получение списка всех бронирований для данной вещи
+    public List<Booking> getAllBookingByUser(Item item) {
+        return bookingRepository.findAllByItemOrderByStartDesc(item);
+    }
+
+    // Получение всех бронирований для данной вещи данным пользователем до настоящего времени
+    public List<Booking> getAllBookingForItemByUser(Item item, User user, LocalDateTime now) {
+        return bookingRepository.findByBookingByItemAndBookerAndEndBefore(item, user, now);
     }
 }

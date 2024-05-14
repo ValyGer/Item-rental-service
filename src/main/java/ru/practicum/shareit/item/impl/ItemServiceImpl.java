@@ -3,7 +3,7 @@ package ru.practicum.shareit.item.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingLastNextDto;
 import ru.practicum.shareit.booking.dto.BookingLastNextDtoMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -19,7 +19,7 @@ import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
 import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import javax.transaction.Transactional;
@@ -34,94 +34,75 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
-    private final BookingRepository bookingRepository;
-    private final CommentRepository commentRepository;
+    private final CommentRepository commentRepository; // оставляем использование репозитория Comment, так как для сущности не создавался сервис
+    private final UserService userService;
+    private final BookingService bookingService;
     private final ItemDtoForBookingAndCommentsMapper itemDtoForBookingAndCommentsMapper;
     private final BookingLastNextDtoMapper bookingLastNextDtoMapper;
     private final CommentMapper commentMapper;
 
     // Добавление вещи
     public Item createItem(Long userId, Item item) throws NotFoundException {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            log.info("Вещь успешно добавлена");
-            item.setOwner(userId);
-            return itemRepository.save(item);
-        } else {
-            log.info("Пользователь с Id = {} существует в базе", userId);
-            throw new NotFoundException("Пользователь не найден");
-        }
+        userService.getUserById(userId);
+        log.info("Вещь успешно добавлена");
+        item.setOwner(userId);
+        return itemRepository.save(item);
     }
 
     // Обновление вещи
     public Item updateItem(Long userId, Long itemId, Item item) throws NotFoundException {
-        Optional<User> user = userRepository.findById(userId);
-        LocalDateTime now = LocalDateTime.now();
-        if (user.isPresent()) {
-            log.info("Пользователь с Id = {} существует в базе", userId);
-            try {
-                Item saved = itemRepository.getReferenceById(itemId);
-                if (item.getName() != null) {
-                    saved.setName(item.getName());
-                }
-                if (item.getDescription() != null) {
-                    saved.setDescription(item.getDescription());
-                }
-                if (item.getIsAvailable() != null) {
-                    saved.setIsAvailable(item.getIsAvailable());
-                }
-                log.info("Вещь с Id = {} обновлена", itemId);
-
-                // List<CommentDto> commentDto =
-                return itemRepository.save(saved);
-            } catch (NotFoundException e) {
-                log.info("Данной вещи с Id = {} нет у пользователя", itemId);
-                throw new NotFoundException("Вещи с указанным Id не принадлежит данному пользователю");
+        userService.getUserById(userId);
+        try {
+            Item saved = itemRepository.getReferenceById(itemId);
+            if (item.getName() != null) {
+                saved.setName(item.getName());
             }
-        } else {
-            log.info("Пользователь с Id = {} не существует в базе", userId);
-            throw new NotFoundException("Пользователь не найден");
+            if (item.getDescription() != null) {
+                saved.setDescription(item.getDescription());
+            }
+            if (item.getIsAvailable() != null) {
+                saved.setIsAvailable(item.getIsAvailable());
+            }
+            log.info("Вещь с Id = {} обновлена", itemId);
+
+            return itemRepository.save(saved);
+        } catch (NotFoundException e) {
+            log.info("Данной вещи с Id = {} нет у пользователя", itemId);
+            throw new NotFoundException("Вещи с указанным Id не принадлежит данному пользователю");
         }
     }
 
     // Получение вещей пользователя
     @Transactional
     public List<ItemDtoForBookingAndComments> getAllItemsUser(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            log.info("Пользователь с Id = {} существует в базе", userId);
+        userService.getUserById(userId);
+        log.info("Пользователь с Id = {} существует в базе", userId);
 
-            List<Item> items = itemRepository.findItemsByOwnerOrderByItemIdAsc(userId);
-            List<ItemDtoForBookingAndComments> allItemByUser = new ArrayList<>();
-            LocalDateTime now = LocalDateTime.now();
-            for (Item item : items) {
-                ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
-                        .toItemDtoForBookingAndComments(item);
-                LocalDateTime timeNow = LocalDateTime.now();
+        List<Item> items = itemRepository.findItemsByOwnerOrderByItemIdAsc(userId);
+        List<ItemDtoForBookingAndComments> allItemByUser = new ArrayList<>();
+        for (Item item : items) {
+            ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
+                    .toItemDtoForBookingAndComments(item);
+            LocalDateTime timeNow = LocalDateTime.now();
 
-                BookingLastNextDto lastBooking = getLastBooking(item, timeNow);
-                BookingLastNextDto nextBooking = getNextBooking(item, timeNow);
-                itemFromBd.setLastBooking(lastBooking);
-                itemFromBd.setNextBooking(nextBooking);
+            BookingLastNextDto lastBooking = getLastBooking(item, timeNow);
+            BookingLastNextDto nextBooking = getNextBooking(item, timeNow);
+            itemFromBd.setLastBooking(lastBooking);
+            itemFromBd.setNextBooking(nextBooking);
 
-                List<Comment> commentsAboutItem = commentRepository.findAllByItemOrderByItem(item);
-                if (commentsAboutItem.isEmpty()) {
-                    List<CommentDto> comments = new ArrayList<>();
-                    itemFromBd.setComments(comments);
-                } else {
-                    itemFromBd.setComments(commentsAboutItem.stream()
-                            .map(commentMapper::toCommentDto).collect(Collectors.toList()));
-                    log.info("Список комментариев получен");
-                }
-                allItemByUser.add(itemFromBd);
+            List<Comment> commentsAboutItem = commentRepository.findAllByItemOrderByItem(item);
+            if (commentsAboutItem.isEmpty()) {
+                List<CommentDto> comments = new ArrayList<>();
+                itemFromBd.setComments(comments);
+            } else {
+                itemFromBd.setComments(commentsAboutItem.stream()
+                        .map(commentMapper::toCommentDto).collect(Collectors.toList()));
+                log.info("Список комментариев получен");
             }
-            log.info("Список вещей успешно получен");
-            return allItemByUser;
-        } else {
-            log.info("Пользователь с Id = {} отсутствует в баз", userId);
-            throw new NotFoundException("Пользователя с указанным Id не существует");
+            allItemByUser.add(itemFromBd);
         }
+        log.info("Список вещей успешно получен");
+        return allItemByUser;
     }
 
     // Получение вещи по Id
@@ -154,44 +135,39 @@ public class ItemServiceImpl implements ItemService {
     public ItemDtoForBookingAndComments getItemWithBooker(long itemId, long ownerId) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
-            Optional<User> user = userRepository.findById(ownerId);
-            if (user.isPresent()) {
-                ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
-                        .toItemDtoForBookingAndComments(item.get());
-                if (item.get().getOwner() == ownerId) {
-                    LocalDateTime timeNow = LocalDateTime.now();
-                    BookingLastNextDto lastBooking = getLastBooking(item.get(), timeNow);
-                    BookingLastNextDto nextBooking = getNextBooking(item.get(), timeNow);
-                    itemFromBd.setLastBooking(lastBooking);
-                    itemFromBd.setNextBooking(nextBooking);
-                } else {
-                    log.info("Пользователь с Id = {} не является владельцев вещи, информация по бронированию не нужна", ownerId);
-                }
-                //Добавление комментариев
-                List<Comment> commentsAboutItem = commentRepository.findAllByItemOrderByItem(item.get());
-                if (commentsAboutItem.isEmpty()) {
-                    List<CommentDto> comments = new ArrayList<>();
-                    itemFromBd.setComments(comments);
-                } else {
-                    itemFromBd.setComments(commentsAboutItem.stream()
-                            .map(commentMapper::toCommentDto).collect(Collectors.toList()));
-                }
-                log.info("Список комментариев получен");
-
-                return itemFromBd;
+            userService.getUserById(ownerId);
+            ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
+                    .toItemDtoForBookingAndComments(item.get());
+            if (item.get().getOwner() == ownerId) {
+                LocalDateTime timeNow = LocalDateTime.now();
+                BookingLastNextDto lastBooking = getLastBooking(item.get(), timeNow);
+                BookingLastNextDto nextBooking = getNextBooking(item.get(), timeNow);
+                itemFromBd.setLastBooking(lastBooking);
+                itemFromBd.setNextBooking(nextBooking);
             } else {
-                log.info("Пользователь с Id = {} не существует в базе", ownerId);
-                throw new NotFoundException("Пользователь не найден");
+                log.info("Пользователь с Id = {} не является владельцев вещи, информация по бронированию не нужна", ownerId);
             }
+            //Добавление комментариев
+            List<Comment> commentsAboutItem = commentRepository.findAllByItemOrderByItem(item.get());
+            if (commentsAboutItem.isEmpty()) {
+                List<CommentDto> comments = new ArrayList<>();
+                itemFromBd.setComments(comments);
+            } else {
+                itemFromBd.setComments(commentsAboutItem.stream()
+                        .map(commentMapper::toCommentDto).collect(Collectors.toList()));
+            }
+            log.info("Список комментариев получен");
+
+            return itemFromBd;
         } else {
-            log.info("Данной вещи с Id = {} нет в базе", itemId);
-            throw new NotFoundException("Вещи с указанным Id не существует");
+            log.info("Пользователь с Id = {} не существует в базе", ownerId);
+            throw new NotFoundException("Пользователь не найден");
         }
     }
 
     // Поиск следующего бронирования
     private BookingLastNextDto getNextBooking(Item item, LocalDateTime timeNow) {
-        List<Booking> allBookingForItem = bookingRepository.findAllByItemOrderByStartDesc(item);
+        List<Booking> allBookingForItem = bookingService.getAllBookingByUser(item);
         Booking nextBooking = null;
         if (allBookingForItem != null && !allBookingForItem.isEmpty()) {
             for (Booking b : allBookingForItem) {
@@ -211,7 +187,7 @@ public class ItemServiceImpl implements ItemService {
 
     // Поиск предыдущего бронирования
     private BookingLastNextDto getLastBooking(Item item, LocalDateTime timeNow) {
-        List<Booking> allBookingForItem = bookingRepository.findAllByItemOrderByStartDesc(item);
+        List<Booking> allBookingForItem = bookingService.getAllBookingByUser(item);
         Booking lastBooking = null;
         if (allBookingForItem != null && !allBookingForItem.isEmpty()) {
             for (Booking b : allBookingForItem) {
@@ -234,27 +210,22 @@ public class ItemServiceImpl implements ItemService {
     public Comment addComment(long userId, long itemId, Comment comment) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
-            Optional<User> user = userRepository.findById(userId);
-            if (user.isPresent()) {
-                List<Booking> booking = bookingRepository.findByBookingByItemAndBookerAndEndBefore(item.get(), user.get(),
-                        LocalDateTime.now());
-                if (booking.isEmpty()) {
-                    log.error("Пользователь c id = {} не может оставить отзыв на вещь c id = {}," +
-                            " так как не брал ее в аренду.", userId, itemId);
-                    throw new ValidationException("Пользователь не может оставить отзыв на вещь если не брал ее в аренду.");
-                }
-                comment.setAuthor(user.get());
-                comment.setItem(item.get());
-                comment.setCreate(LocalDateTime.now());
-                log.info("Добавлен новый комментарий к вещи id = {}.", itemId);
-                return commentRepository.save(comment);
-            } else {
-                log.info("Пользователь с Id = {} не существует в базе", userId);
-                throw new NotFoundException("Пользователь не найден");
+            User user = userService.getUserById(userId);
+            List<Booking> booking = bookingService.getAllBookingForItemByUser(item.get(), user,
+                    LocalDateTime.now());
+            if (booking.isEmpty()) {
+                log.error("Пользователь c id = {} не может оставить отзыв на вещь c id = {}," +
+                        " так как не брал ее в аренду.", userId, itemId);
+                throw new ValidationException("Пользователь не может оставить отзыв на вещь если не брал ее в аренду.");
             }
+            comment.setAuthor(user);
+            comment.setItem(item.get());
+            comment.setCreate(LocalDateTime.now());
+            log.info("Добавлен новый комментарий к вещи id = {}.", itemId);
+            return commentRepository.save(comment);
         } else {
-            log.info("Данной вещи с Id = {} нет в базе", itemId);
-            throw new NotFoundException("Вещи с указанным Id не существует");
+            log.info("Пользователь с Id = {} не существует в базе", userId);
+            throw new NotFoundException("Пользователь не найден");
         }
     }
 }
