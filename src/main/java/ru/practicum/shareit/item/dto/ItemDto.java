@@ -21,6 +21,7 @@ public class ItemDto {
     private String description;
     @NotNull
     private Boolean available;
+    private Long requestId;
 
     public ItemDto(String name, String description, Boolean available) {
         this.name = name;
@@ -33,5 +34,12 @@ public class ItemDto {
         this.name = name;
         this.description = description;
         this.available = available;
+    }
+
+    public ItemDto(String name, String description, Boolean available, Long requestId) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.requestId = requestId;
     }
 }

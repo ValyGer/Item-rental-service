@@ -1,10 +1,11 @@
 package ru.practicum.shareit.request.dto;
 
 import lombok.*;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.item.dto.ItemDtoForRequest;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * TODO Sprint add-item-requests.
@@ -18,23 +19,24 @@ public class ItemRequestDto {
     private Long id;
     @NotBlank
     private String description;
-    private Long requestorId;
-    private LocalDateTime create;
+    private Long ownerId;
+    private LocalDateTime created;
+    private List<ItemDtoForRequest> items;
 
     public ItemRequestDto(String description) {
         this.description = description;
     }
 
-    public ItemRequestDto(String description, User requestor, LocalDateTime create) {
+    public ItemRequestDto(String description, Long ownerId, LocalDateTime created) {
         this.description = description;
-        this.requestorId = requestor.getId();
-        this.create = create;
+        this.ownerId = ownerId;
+        this.created = created;
     }
 
-    public ItemRequestDto(Long id, String description, Long requestorId, LocalDateTime create) {
+    public ItemRequestDto(Long id, String description, Long ownerId, LocalDateTime created) {
         this.id = id;
         this.description = description;
-        this.requestorId = requestorId;
-        this.create = create;
+        this.ownerId = ownerId;
+        this.created = created;
     }
 }

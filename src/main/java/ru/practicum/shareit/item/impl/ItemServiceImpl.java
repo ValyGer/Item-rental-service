@@ -13,10 +13,7 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentMapper;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
@@ -40,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemDtoForBookingAndCommentsMapper itemDtoForBookingAndCommentsMapper;
     private final BookingLastNextDtoMapper bookingLastNextDtoMapper;
     private final CommentMapper commentMapper;
+    private final ItemDtoForRequestMapper itemDtoForRequestMapper;
 
     // Добавление вещи
     public Item createItem(Long userId, Item item) throws NotFoundException {

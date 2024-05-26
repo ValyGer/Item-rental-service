@@ -31,7 +31,7 @@ public class Item {
     @Column(name = "status")
     private Boolean isAvailable; // статус вещи: доступна не доступна
     @Column(name = "request_id")
-    private Long request; // если вещь создана по запросу, то тут будет ссылка на номер этого запроса
+    private Long request; // если вещь создана по запросу, то тут будет ссылка на запрос
     @OneToMany(mappedBy = "item")
     private List<Comment> comments = new ArrayList<>(); // список комментариев
     @OneToMany(mappedBy = "item")

@@ -4,9 +4,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * TODO Sprint add-item-requests.
@@ -22,7 +25,10 @@ public class ItemRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id; //идентификатор запроса
     private String description; // описание запроса
-    @Column(name = "requester_id")
-    private Long requesterId; // пользователь, который создал запроса
-    private LocalDateTime create; // дата и время создания запроса
+    @ManyToOne
+    @JoinColumn(name = "requester_id")
+    private User requester; // пользователь, который создал запроса
+    private LocalDateTime created; // дата и время создания запроса
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
+    private List<Item> items;  // добавление идентификатора вещи созданной в ответ на запрос
 }
