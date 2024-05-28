@@ -215,32 +215,52 @@ class BookingControllerTest {
         verify(bookingService).getAllBookingByUser(from, size, booker.getId(), state);
     }
 
+    @SneakyThrows
     @Test
-    void getAllBookingByOwner() {
-//        Long bookingId = 1L;
-//        String state = State.ALL.toString();
-//        Integer from = 0;
-//        Integer size = 10;
-//
-//        BookingDtoWithItem bookingDtoWithItem1 = new BookingDtoWithItem(1L, item, booker, start, end, Status.WAITING);
-//        BookingDtoWithItem bookingDtoWithItem2 = new BookingDtoWithItem(2L, itemSecond, booker, start, end, Status.APPROVED);
-//        List<BookingDtoWithItem> allBookingOfUser = Arrays.asList(bookingDtoWithItem1, bookingDtoWithItem2);
-//
-//        when(bookingService.getAllBookingByUser(from, size, bookingId, state)).thenReturn(allBookingOfUser);.thenThrow(NotFoundException.class);
-//
-//        String result = mockMvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", booker.getId())
-//                        .param("state", "state")
-//                        .param("from","0")
-//                        .param("size", "10")
-//                        .contentType("application/json")
-//                        .content(objectMapper.writeValueAsString(allBookingOfUser)))
-//                .andExpect(status().isOk())
-//                .andReturn()
-//                .getResponse()
-//                .getContentAsString();
-//
-//        assertEquals(objectMapper.writeValueAsString(allBookingOfUser), result);
-//    }
+    void getAllBookingByOwner_whenSandedResponseОк() {
+        Long bookingId = 1L;
+        String state = State.ALL.toString();
+        Integer from = 0;
+        Integer size = 10;
+
+        UserDtoForBooking owner = new UserDtoForBooking(1L);
+
+        BookingDtoWithItem bookingDtoWithItem1 = new BookingDtoWithItem(1L, item, booker, start, end, Status.WAITING);
+        BookingDtoWithItem bookingDtoWithItem2 = new BookingDtoWithItem(2L, itemSecond, booker, start, end, Status.APPROVED);
+        List<BookingDtoWithItem> allBookingOfUser = Arrays.asList(bookingDtoWithItem1, bookingDtoWithItem2);
+
+        when(bookingService.getAllBookingByUser(from, size, bookingId, state)).thenReturn(allBookingOfUser);
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", owner.getId())
+                        .param("state", "ALL")
+                        .param("from","0")
+                        .param("size", "10")
+                        .contentType("application/json"))
+                .andExpect(status().isOk());
+
+        verify(bookingService).getAllBookingByOwner(from, size, owner.getId(), state);
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllBookingByOwner_thenBadRequest() {
+        Long bookingId = 1L;
+        String state = State.ALL.toString();
+        Integer from = -1;
+        Integer size = 10;
+        UserDtoForBooking owner = new UserDtoForBooking(1L);
+
+        when(bookingService.getAllBookingByOwner(from, size, bookingId, state)).thenThrow(ValidationException.class);
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", owner.getId())
+                        .param("state", "ALL")
+                        .param("from", "-1")
+                        .param("size", "10")
+                        .contentType("application/json"))
+                .andExpect(status().is(400));
+
+        verify(bookingService).getAllBookingByOwner(from, size, owner.getId(), state);
     }
 }
