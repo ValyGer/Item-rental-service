@@ -6,9 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +38,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void createUser() {
+    void createUser_whenUserIsCreate_thenResponseStatusOk() {
         UserDto userDto = new UserDto(1L, "Name", "user@mail.ru");
         when(userMapper.toUserDto(userService.createUser(any()))).thenReturn(userDto);
 
@@ -50,7 +55,19 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void getAllUsers() {
+    void createUser_whenUserIsNotValid_thenResponseBadRequest() {
+        UserDto userDto = new UserDto(1L, "Name", "mail.ru");
+        mockMvc.perform(post("/users")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().is(400));
+
+        verify(userService, never()).createUser(userMapper.toUser(userDto));
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllUsers_thenResponseStatusOk() {
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk());
 
@@ -59,7 +76,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void getUserById_whenResponseStatus200() {
+    void getUserById_whenResponseStatusOk() {
         Long userId = 1L;
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk());
@@ -69,22 +86,57 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
+    void getUserById_whenNotFound_thenResponseStatusBadRequest() {
+        Long userId = 999L;
+
+        when(userService.getUserById(userId))
+                .thenThrow(NotFoundException.class);
+        mockMvc.perform(get("/users/{userId}", userId)
+                        .content(objectMapper.writeValueAsString(userId))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(404));
+    }
+
+    @SneakyThrows
+    @Test
+    void updateUser_whenUserIsDone_thenResponseStatusOk() {
+        UserDto userDto = new UserDto(1L, "NameUp", "userUpdate@email.ru");
+
+        User user = new User(1L, "Name", "user@mail.ru");
+
+        when(userMapper.toUserDto(userService.updateUser(user.getId(), user))).thenReturn(userDto);
+
+        String result = mockMvc.perform(patch("/users/{userId}", userDto.getId())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(userDto), result);
+    }
+
+    @SneakyThrows
+    @Test
     void updateUser_whenUserIsNotValid_thenResponseBadRequest() {
         Long userId = 0L;
         UserDto userDtoUpdate = new UserDto();
         userDtoUpdate.setEmail(null);
 
-        mockMvc.perform(put("/users/{userId}", userId)
+        mockMvc.perform(patch("/users/{userId}", userId)
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(userDtoUpdate)))
-                .andExpect(status().is(405));
+                .andExpect(status().is(400));
 
         verify(userService, never()).updateUser(userId, userMapper.toUser(userDtoUpdate));
     }
 
     @SneakyThrows
     @Test
-    void deleteUserBuId() {
+    void deleteUserBuId_thenResponseStatusOk() {
         Long userId = 1L;
         mockMvc.perform(delete("/users/{userId}", userId))
                 .andExpect(status().isOk());
