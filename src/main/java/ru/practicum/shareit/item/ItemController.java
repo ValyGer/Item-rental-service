@@ -32,7 +32,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}") // Обновление информации о вещи
-    public ResponseEntity<ItemDto> updateItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId,
+    public ResponseEntity<ItemDto> updateItemById(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId,
                                               @RequestBody ItemDto itemDto) {
         Item item = itemMapper.toItem(itemDto);
         return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.updateItem(userId, itemId, item)));
