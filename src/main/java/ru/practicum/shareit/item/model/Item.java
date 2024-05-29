@@ -42,4 +42,12 @@ public class Item {
         this.description = description;
         this.isAvailable = isAvailable;
     }
+
+    public Item(long itemId, String name, String description, long owner, Boolean isAvailable) {
+        this.itemId = itemId;
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+        this.isAvailable = isAvailable;
+    }
 }
