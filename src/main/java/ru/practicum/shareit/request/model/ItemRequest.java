@@ -31,4 +31,11 @@ public class ItemRequest {
     private LocalDateTime created; // дата и время создания запроса
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
     private List<Item> items;  // добавление идентификатора вещи созданной в ответ на запрос
+
+    public ItemRequest(long id, String description, User requester, LocalDateTime created) {
+        this.id = id;
+        this.description = description;
+        this.requester = requester;
+        this.created = created;
+    }
 }

@@ -146,14 +146,9 @@ class BookingControllerTest {
     @SneakyThrows
     @Test
     void getAllBookingByUser_ListOfBookingSendSuccess_thenResponseStatusOk() {
-        Long bookingId = 1L;
         String state = State.ALL.toString();
         Integer from = 0;
         Integer size = 10;
-
-        BookingDtoWithItem bookingDtoWithItem1 = new BookingDtoWithItem(1L, item, booker, start, end, Status.WAITING);
-        BookingDtoWithItem bookingDtoWithItem2 = new BookingDtoWithItem(2L, itemSecond, booker, start, end, Status.APPROVED);
-        List<BookingDtoWithItem> allBookingOfUser = Arrays.asList(bookingDtoWithItem1, bookingDtoWithItem2);
 
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", booker.getId())
@@ -234,7 +229,7 @@ class BookingControllerTest {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", owner.getId())
                         .param("state", "ALL")
-                        .param("from","0")
+                        .param("from", "0")
                         .param("size", "10")
                         .contentType("application/json"))
                 .andExpect(status().isOk());
