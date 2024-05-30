@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,8 +34,11 @@ class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Captor
+    private ArgumentCaptor<User> userArgumentCaptor;
+
     @Test
-    void createUserSuccessfully () {
+    void createUser_whenUserCreated_thenReturnUser() {
         User user = new User(1L, "Name", "user@mail.ru");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -45,8 +50,8 @@ class UserServiceImplTest {
     }
 
     @Test
-    void errorWhenCreatingUserWithEmailAlreadyExists() {
-        User user = new User(1L, "Name", "user@mail.ru");
+    void createUser_whenUserNotCreated_thenReturnThrow() {
+        User user = new User();
         when(userRepository.save(any(User.class))).thenThrow(ConflictException.class);
 
         assertThrows(ConflictException.class,
@@ -73,14 +78,29 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUser() {
+    void updateUser_whenUserUpdeted_thenReturnUser() {
+        Long userId = 0L;
+        User oldUser = new User();
+        oldUser.setUserName("Name1");
+        oldUser.setEmail("user1@mail.ru");
+
+        User newUser = new User();
+        newUser.setUserName("Name2");
+        newUser.setEmail("user2@mail.ru");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(oldUser));
+
+        User actualUser = userService.updateUser(userId,newUser);
+
+        verify(userRepository).save(userArgumentCaptor.capture());
+        User savedUser = userArgumentCaptor.getValue();
+
+        assertEquals("Name2", savedUser.getUserName());
+        assertEquals("user2@mail.ru", savedUser.getEmail());
     }
 
     @Test
     void getAllUsers() {
     }
-
-
 
     @Test
     void deleteUser() {
