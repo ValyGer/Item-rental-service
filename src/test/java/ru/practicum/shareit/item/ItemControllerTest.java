@@ -92,7 +92,8 @@ class ItemControllerTest {
         ItemDto itemDto = new ItemDto(1L, "Name", "About of item", true, 1L);
         User user = new User(1L, "Name", "user@mail.ru");
 
-        when(itemMapper.toItemDto(itemService.updateItem(user.getId(), itemDto.getId(), any(Item.class)))).thenReturn(itemDto);
+        when(itemMapper.toItemDto(itemService.updateItem(user.getId(), itemDto.getId(), itemMapper.toItem(itemDto))))
+                .thenReturn(itemDto);
 
         String result = mockMvc.perform(patch("/items/{itemId}", itemDto.getId())
                         .header("X-Sharer-User-Id", user.getId())
