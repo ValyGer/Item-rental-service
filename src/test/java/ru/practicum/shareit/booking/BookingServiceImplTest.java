@@ -5,9 +5,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import ru.practicum.shareit.booking.dto.BookingDtoWithItem;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItemMapper;
 import ru.practicum.shareit.booking.impl.BookingServiceImpl;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.NotFoundException;
@@ -17,14 +20,16 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -119,15 +124,94 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getAllBookingByUser() {
+    void getAllBookingByUser_whenStateAll() {
+        PageRequest pageRequest = PageRequest.of(0, 20);
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findBookingsByBooker_IdOrderByStartDesc(any(Long.class), any(PageRequest.class)))
+                .thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByUser(0, 20, booker.getId(),State.ALL.toString());
+
+        verify(bookingRepository, times(1))
+                .findBookingsByBooker_IdOrderByStartDesc(booker.getId(), pageRequest);
     }
 
     @Test
-    void getAllBookingByOwner() {
+    void getAllBookingByUser_whenStateCURRENT() {
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findAllBookingsForBookerWithStartAndEnd(any(User.class), any(LocalDateTime.class),
+                any(LocalDateTime.class), any(PageRequest.class))).thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByUser(0, 20, booker.getId(),State.CURRENT.toString());
+
+        verify(bookingRepository, times(1))
+                .findAllBookingsForBookerWithStartAndEnd(any(User.class), any(LocalDateTime.class),
+                        any(LocalDateTime.class), any(PageRequest.class));
     }
 
     @Test
-    void getAllBookingForItemBy() {
+    void getAllBookingByUser_whenStatePAST() {
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
 
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(PageRequest.class))).thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByUser(0, 20, booker.getId(),State.PAST.toString());
+
+        verify(bookingRepository, times(1))
+                .findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(any(Long.class),
+                        any(LocalDateTime.class), any(PageRequest.class));
     }
+
+    @Test
+    void getAllBookingByUser_whenStateFUTURE() {
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findAllByBooker_IdAndStartIsAfterOrderByStartDesc(any(Long.class),
+                any(LocalDateTime.class), any(PageRequest.class))).thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByUser(0, 20, booker.getId(),State.FUTURE.toString());
+
+        verify(bookingRepository, times(1))
+                .findAllByBooker_IdAndStartIsAfterOrderByStartDesc(any(Long.class),
+                        any(LocalDateTime.class), any(PageRequest.class));
+    }
+
+    @Test
+    void getAllBookingByUser_whenStateWAITING() {
+        PageRequest pageRequest = PageRequest.of(0, 20);
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(any(Long.class),
+               any(Status.class), any(PageRequest.class))).thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByUser(0, 20, booker.getId(),State.WAITING.toString());
+
+        verify(bookingRepository, times(1))
+                .findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(),
+                        Status.WAITING, pageRequest);
+    }
+
+    @Test
+    void getAllBookingByOwner() {}
+
+
+//    @Test
+//    void getAllBookingByUser() {
+//    }
+
+    @Test
+    void getAllBookingForItemByUser() {}
 }
