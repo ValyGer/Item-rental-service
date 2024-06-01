@@ -37,7 +37,6 @@ public class ItemServiceImpl implements ItemService {
     private final ItemDtoForBookingAndCommentsMapper itemDtoForBookingAndCommentsMapper;
     private final BookingLastNextDtoMapper bookingLastNextDtoMapper;
     private final CommentMapper commentMapper;
-    private final ItemDtoForRequestMapper itemDtoForRequestMapper;
 
     // Добавление вещи
     public Item createItem(Long userId, Item item) throws NotFoundException {
