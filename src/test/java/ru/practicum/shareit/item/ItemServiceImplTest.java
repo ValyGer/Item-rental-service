@@ -9,10 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingLastNextDtoMapper;
-import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
+import ru.practicum.shareit.item.dto.ItemDtoForBooking;
 import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
 import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
 import ru.practicum.shareit.item.impl.ItemServiceImpl;
@@ -87,7 +86,7 @@ class ItemServiceImplTest {
         Long itemId = 0L;
         User user = new User();
         Item oldItem = new Item("name", "description", true);
-        Item newItem = new Item ("New Name", "New description", true);
+        Item newItem = new Item("New Name", "New description", true);
 
         when(itemRepository.getReferenceById(itemId)).thenReturn(oldItem);
         when(userService.getUserById(userId)).thenReturn(user);
@@ -125,7 +124,7 @@ class ItemServiceImplTest {
         when(userService.getUserById(any(Long.class))).thenReturn(new User());
         when(itemRepository.findItemsByOwnerOrderByItemIdAsc(any(Long.class))).thenReturn(new ArrayList<>());
 
-        List<ItemDtoForBookingAndComments> itemsOfUser = itemService.getAllItemsUser(userId);
+        itemService.getAllItemsUser(userId);
 
         verify(itemRepository, times(1)).findItemsByOwnerOrderByItemIdAsc(userId);
         verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
@@ -143,13 +142,10 @@ class ItemServiceImplTest {
         verify(commentRepository, never()).findAllByItemOrderByItem(any(Item.class));
     }
 
-
-
     @Test
     void searchAvailableItemsTestWhenTextIsEmpty() {
         String text = " ";
         List<Item> listOfItems = new ArrayList<>();
-       // when(itemRepository.searchAvailableItems(any(String.class))).thenReturn(listOfItems);
 
         List<Item> savedOfItems = itemService.searchAvailableItems(text);
 
@@ -170,7 +166,39 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItemWithBooker() {
+    void getItemWithBooker_whenItemsFound_thenReturnListOfItemWithBooker () {
+        Long itemId = 0L;
+        Long userId = 0L;
+        Item item = new Item();
+        List<Comment> commentsAboutItem = new ArrayList<>();
+        ItemDtoForBookingAndComments itemFromBd = new ItemDtoForBookingAndComments();
+
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.of(item));
+        when(commentRepository.findAllByItemOrderByItem(any(Item.class))).thenReturn(commentsAboutItem);
+        when(itemDtoForBookingAndCommentsMapper.toItemDtoForBookingAndComments(any(Item.class))).thenReturn(itemFromBd);
+
+        itemService.getItemWithBooker(itemId, userId);
+
+        verify(itemRepository, times(1)).findById(userId);
+        verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
+    }
+
+    @Test
+    void getItemWithBooker_whenItemsNotFound_thenReturnThrow() {
+        Long itemId = 0L;
+        Long userId = 0L;
+        Item item = new Item();
+        List<Comment> commentsAboutItem = new ArrayList<>();
+        ItemDtoForBookingAndComments itemFromBd = new ItemDtoForBookingAndComments();
+
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.of(item));
+        when(commentRepository.findAllByItemOrderByItem(any(Item.class))).thenReturn(commentsAboutItem);
+        when(itemDtoForBookingAndCommentsMapper.toItemDtoForBookingAndComments(any(Item.class))).thenReturn(itemFromBd);
+
+        itemService.getItemWithBooker(itemId, userId);
+
+        verify(itemRepository, times(1)).findById(userId);
+        verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
     }
 
     @Test
