@@ -200,18 +200,57 @@ class BookingServiceImplTest {
         bookingService.getAllBookingByUser(0, 20, booker.getId(),State.WAITING.toString());
 
         verify(bookingRepository, times(1))
-                .findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(),
-                        Status.WAITING, pageRequest);
+                .findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(), Status.WAITING, pageRequest);
+    }
+
+    @Test
+    void getAllBookingByUser_whenStateREJECTED() {
+        PageRequest pageRequest = PageRequest.of(0, 20);
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(any(Long.class),
+                any(Status.class), any(PageRequest.class))).thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByUser(0, 20, booker.getId(),State.REJECTED.toString());
+
+        verify(bookingRepository, times(1))
+                .findAllByBooker_IdAndStatusOrderByStartDesc(booker.getId(), Status.REJECTED, pageRequest);
     }
 
     @Test
     void getAllBookingByOwner() {}
 
 
-//    @Test
-//    void getAllBookingByUser() {
-//    }
+    @Test
+    void getAllBookingByUser_ReturnItem() {
+        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(bookingRepository.findAllByItemOrderByStartDesc(any(Item.class))).thenReturn(listOfBooking);
+
+        List<Booking> listOfBookingSaved = bookingService.getAllBookingByUser(item);
+
+        assertThat(listOfBookingSaved.size(), equalTo(listOfBooking.size()));
+        verify(bookingRepository, times(1))
+                .findAllByItemOrderByStartDesc(item);
+    }
 
     @Test
-    void getAllBookingForItemByUser() {}
+    void getAllBookingForItemByUser() {
+        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        User owner = new User(1L, "Name", "user@mail.ru");
+        List<Booking> listOfBooking = new ArrayList<>();
+        LocalDateTime time = LocalDateTime.now();
+
+        when(bookingRepository.findByBookingByItemAndBookerAndEndBefore(any(Item.class), any(User.class),
+                any(LocalDateTime.class))).thenReturn(listOfBooking);
+
+        List<Booking> listOfBookingSaved = bookingService.getAllBookingForItemByUser(item, owner, time);
+
+        assertThat(listOfBookingSaved.size(), equalTo(listOfBooking.size()));
+        verify(bookingRepository, times(1))
+                .findByBookingByItemAndBookerAndEndBefore(item, owner, time);
+    }
 }
