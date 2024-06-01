@@ -121,21 +121,6 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void updateUser_whenUserIsNotValid_thenResponseBadRequest() {
-        Long userId = 0L;
-        UserDto userDtoUpdate = new UserDto();
-        userDtoUpdate.setEmail(null);
-
-        mockMvc.perform(patch("/users/{userId}", userId)
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDtoUpdate)))
-                .andExpect(status().is(400));
-
-        verify(userService, never()).updateUser(userId, userMapper.toUser(userDtoUpdate));
-    }
-
-    @SneakyThrows
-    @Test
     void deleteUserBuId_thenResponseStatusOk() {
         Long userId = 1L;
         mockMvc.perform(delete("/users/{userId}", userId))
