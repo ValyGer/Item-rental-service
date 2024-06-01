@@ -97,7 +97,21 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItemsById() {
+    void getItemsById_whenItemFound_thenReturnItem() {
+        Long itemId = 0L;
+        Item item = new Item();
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.of(item));
+
+        Item savedItem = itemService.getItemsById(itemId);
+        assertEquals(item, savedItem);
+    }
+
+    @Test
+    void getItemsById_whenItemNotFound_thenReturnThrow() {
+        Long itemId = 0L;
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> itemService.getItemsById(itemId));
     }
 
     @Test
