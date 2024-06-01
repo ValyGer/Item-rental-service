@@ -36,7 +36,6 @@ class ItemRequestServiceImplTest {
     @Mock
     private ItemRequestRepository itemRequestRepository;
 
-
     @Test
     void createItemRequest_whenResponseStatusOk() {
         ItemRequest itemRequest = new ItemRequest(1L, "ItemRequest", new User(), LocalDateTime.now());
