@@ -11,13 +11,18 @@ import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingLastNextDtoMapper;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
+import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
 import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
 import ru.practicum.shareit.item.impl.ItemServiceImpl;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -84,8 +89,8 @@ class ItemServiceImplTest {
         Item oldItem = new Item("name", "description", true);
         Item newItem = new Item ("New Name", "New description", true);
 
-        when(itemRepository.getReferenceById(userId)).thenReturn(oldItem);
-        when(userService.getUserById(itemId)).thenReturn(user);
+        when(itemRepository.getReferenceById(itemId)).thenReturn(oldItem);
+        when(userService.getUserById(userId)).thenReturn(user);
 
         itemService.updateItem(user.getId(), itemId, newItem);
 
@@ -115,11 +120,53 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getAllItemsUser() {
+    void getAllItemsUser_whenAllItemsFound_thenReturnListOfItem() {
+        Long userId = 0L;
+        when(userService.getUserById(any(Long.class))).thenReturn(new User());
+        when(itemRepository.findItemsByOwnerOrderByItemIdAsc(any(Long.class))).thenReturn(new ArrayList<>());
+
+        List<ItemDtoForBookingAndComments> itemsOfUser = itemService.getAllItemsUser(userId);
+
+        verify(itemRepository, times(1)).findItemsByOwnerOrderByItemIdAsc(userId);
+        verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
     }
 
     @Test
-    void searchAvailableItems() {
+    void getAllItemsUser_whenUserNotFound_thenReturnToThrow() {
+        Long userId = 0L;
+        when(userService.getUserById(any(Long.class))).thenThrow(NotFoundException.class);
+
+        assertThrows(NotFoundException.class,
+                () -> itemService.getAllItemsUser(any(Long.class)));
+
+        verify(itemRepository, never()).findItemsByOwnerOrderByItemIdAsc(userId);
+        verify(commentRepository, never()).findAllByItemOrderByItem(any(Item.class));
+    }
+
+
+
+    @Test
+    void searchAvailableItemsTestWhenTextIsEmpty() {
+        String text = " ";
+        List<Item> listOfItems = new ArrayList<>();
+       // when(itemRepository.searchAvailableItems(any(String.class))).thenReturn(listOfItems);
+
+        List<Item> savedOfItems = itemService.searchAvailableItems(text);
+
+        verify(itemRepository, never()).searchAvailableItems(text);
+        assertThat(listOfItems, equalTo(savedOfItems));
+    }
+
+    @Test
+    void searchAvailableItemsTestWhenTestHasAnySize() {
+        String text = "abc";
+        List<Item> listOfItems = new ArrayList<>();
+        when(itemRepository.searchAvailableItems(any(String.class))).thenReturn(listOfItems);
+
+        List<Item> savedOfItems = itemService.searchAvailableItems(text);
+
+        verify(itemRepository, times(1)).searchAvailableItems(text);
+        assertThat(listOfItems, equalTo(savedOfItems));
     }
 
     @Test
