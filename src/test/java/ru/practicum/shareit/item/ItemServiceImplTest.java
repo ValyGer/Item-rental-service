@@ -198,4 +198,12 @@ class ItemServiceImplTest {
     @Test
     void addComment_whenAddCommentSuccess_thenResponse() {
     }
+
+    @Test
+    void addComment_thenResponseThrowNotFound() {
+    }
+
+    @Test
+    void addComment_thenResponseThrowValid() {
+    }
 }
