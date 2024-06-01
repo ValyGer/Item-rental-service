@@ -187,21 +187,15 @@ class ItemServiceImplTest {
     void getItemWithBooker_whenItemsNotFound_thenReturnThrow() {
         Long itemId = 0L;
         Long userId = 0L;
-        Item item = new Item();
-        List<Comment> commentsAboutItem = new ArrayList<>();
-        ItemDtoForBookingAndComments itemFromBd = new ItemDtoForBookingAndComments();
 
-        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.of(item));
-        when(commentRepository.findAllByItemOrderByItem(any(Item.class))).thenReturn(commentsAboutItem);
-        when(itemDtoForBookingAndCommentsMapper.toItemDtoForBookingAndComments(any(Item.class))).thenReturn(itemFromBd);
+        assertThrows(NotFoundException.class,
+                () -> itemService.getItemWithBooker(itemId, userId));
 
-        itemService.getItemWithBooker(itemId, userId);
-
-        verify(itemRepository, times(1)).findById(userId);
-        verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
+        verify(itemRepository, never()).findItemsByOwnerOrderByItemIdAsc(userId);
+        verify(commentRepository, never()).findAllByItemOrderByItem(any(Item.class));
     }
 
     @Test
-    void addComment() {
+    void addComment_whenAddCommentSuccess_thenResponse() {
     }
 }
