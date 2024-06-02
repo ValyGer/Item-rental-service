@@ -5,7 +5,7 @@ import ru.practicum.shareit.user.dto.UserDtoForBooking;
 import ru.practicum.shareit.user.dto.UserDtoForBookingMapperImpl;
 import ru.practicum.shareit.user.model.User;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserDtoForBookingMapperTest {
 

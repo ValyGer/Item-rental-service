@@ -39,4 +39,12 @@ public class ItemRequestDto {
         this.ownerId = ownerId;
         this.created = created;
     }
+
+    public ItemRequestDto(Long id, String description, Long ownerId, LocalDateTime created, List<ItemDtoForRequest> items) {
+        this.id = id;
+        this.description = description;
+        this.ownerId = ownerId;
+        this.created = created;
+        this.items = items;
+    }
 }
