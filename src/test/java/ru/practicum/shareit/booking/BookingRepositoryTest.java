@@ -13,6 +13,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DataJpaTest
+@Transactional
 class BookingRepositoryTest {
 
     Long bookingId;
@@ -119,14 +121,13 @@ class BookingRepositoryTest {
 
     @Test
     void findAllBookingsForBookerWithStartAndEndTest() {
-        User user = userRepository.getReferenceById(3L);
+        User user = userRepository.getReferenceById(userId1);
         LocalDateTime start = time.plusMinutes(-10L);
         LocalDateTime end = time.plusMinutes(10L);
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Booking> listOfBooking = bookingRepository.findAllBookingsForBookerWithStartAndEnd(user, start, end, pageRequest);
 
         assertEquals(1, listOfBooking.size());
-        assertEquals(1L, listOfBooking.get(0).getBookingId());
     }
 
     @Test

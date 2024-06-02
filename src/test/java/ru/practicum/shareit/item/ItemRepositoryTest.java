@@ -9,12 +9,14 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @DataJpaTest
+@Transactional
 class ItemRepositoryTest {
 
     @Autowired
@@ -25,40 +27,38 @@ class ItemRepositoryTest {
 
     @BeforeEach
     private void addItem() {
-        userRepository.save(new User(
-                1L,
+        User user1 = userRepository.save(new User(
                 "Name",
                 "name@mail.ru"
         ));
 
-        userRepository.save(new User(
-                2L,
+        User user2 =  userRepository.save(new User(
                 "Secondary",
                 "mail@mail.ru"
         ));
 
-        itemRepository.save(new Item(
-                1L,
+        Item item1 = itemRepository.save(new Item(
                 "Telephone",
                 "A device for calls and correspondence with your friends",
-                1L,
-                true
+                user1.getId(),
+                true,
+                null
         ));
 
-        itemRepository.save(new Item(
-                2L,
+        Item item2 = itemRepository.save(new Item(
                 "Camera",
                 "Allows you to take great photos",
-                2L,
-                true
+                user2.getId(),
+                true,
+                null
         ));
 
-        itemRepository.save(new Item(
-                3L,
+        Item item3 = itemRepository.save(new Item(
                 "Curtains",
                 "They will hide you from the sun",
-                1L,
-                false
+                user1.getId(),
+                false,
+                null
         ));
     }
 
