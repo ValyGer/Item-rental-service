@@ -9,9 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingLastNextDtoMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentMapper;
-import ru.practicum.shareit.item.dto.ItemDtoForBooking;
 import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
 import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
 import ru.practicum.shareit.item.impl.ItemServiceImpl;
@@ -20,6 +20,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -166,7 +167,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItemWithBooker_whenItemsFound_thenReturnListOfItemWithBooker () {
+    void getItemWithBooker_whenItemsFound_thenReturnListOfItemWithBooker() {
         Long itemId = 0L;
         Long userId = 0L;
         Item item = new Item();
@@ -197,13 +198,44 @@ class ItemServiceImplTest {
 
     @Test
     void addComment_whenAddCommentSuccess_thenResponse() {
+        Long userId = 0L;
+        Long itemId = 0L;
+        Comment comment = new Comment();
+        Item item = new Item();
+        User user = new User();
+        List<Booking> bookingOfitem = new ArrayList<>();
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.of(item));
+        when(userService.getUserById(any(Long.class))).thenReturn(user);
+        when(bookingService.getAllBookingForItemByUser(any(Item.class), any(User.class), any(LocalDateTime.class)))
+                .thenReturn(bookingOfitem);
+        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+
+        Comment savedComment = itemService.addComment(userId, itemId, comment);
+
+        assertThat(savedComment, equalTo(comment));
+        verify(itemRepository, times(1)).findById(userId);
+        verify(commentRepository, times(1)).save(comment);
     }
 
     @Test
     void addComment_thenResponseThrowNotFound() {
+        Long userId = 0L;
+        Long itemId = 0L;
+        Comment comment = new Comment();
+        Item item = new Item();
+        User user = new User();
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.of(item));
+        when(userService.getUserById(any(Long.class))).thenReturn(user);
+        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+
+        itemService.addComment(userId, itemId, comment);
+
+
+
     }
 
     @Test
     void addComment_thenResponseThrowValid() {
+
     }
 }
