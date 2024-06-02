@@ -50,4 +50,12 @@ public class Item {
         this.owner = owner;
         this.isAvailable = isAvailable;
     }
+
+    public Item(String name, String description, long owner, boolean isAvailable, Long request) {
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+        this.isAvailable = isAvailable;
+        this.request = request;
+    }
 }
