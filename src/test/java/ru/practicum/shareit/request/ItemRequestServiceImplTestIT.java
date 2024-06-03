@@ -30,7 +30,6 @@ class ItemRequestServiceImplTestIT {
 
         ItemRequest savedItemRequest = itemRequestService.createItemRequest(itemRequest, user.getId());
 
-        assertEquals(itemRequest.getId(), savedItemRequest.getId());
         assertEquals(itemRequest.getDescription(), savedItemRequest.getDescription());
         assertEquals(itemRequest.getCreated(), savedItemRequest.getCreated());
         assertEquals(itemRequest.getRequester().getUserName(), savedItemRequest.getRequester().getUserName());

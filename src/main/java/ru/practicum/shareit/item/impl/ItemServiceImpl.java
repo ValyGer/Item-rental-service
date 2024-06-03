@@ -126,7 +126,6 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
     // Получение пользователем информации о датах следующего предыдущего бронирований вещи
     @Transactional
     public ItemDtoForBookingAndComments getItemWithBooker(long itemId, long ownerId) {
