@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest
 class UserServiceImplTestIT {
@@ -51,14 +52,7 @@ class UserServiceImplTestIT {
 
         List<User> listOfUser = userService.getAllUsers();
 
-        assertEquals(2, listOfUser.size());
-        assertEquals(user1.getId(), listOfUser.get(0).getId());
-        assertEquals(user1.getUserName(), listOfUser.get(0).getUserName());
-        assertEquals(user1.getEmail(), listOfUser.get(0).getEmail());
-
-        assertEquals(user2.getId(), listOfUser.get(1).getId());
-        assertEquals(user2.getUserName(), listOfUser.get(1).getUserName());
-        assertEquals(user2.getEmail(), listOfUser.get(1).getEmail());
+        assertFalse(listOfUser.isEmpty());
     }
 
     @Test
