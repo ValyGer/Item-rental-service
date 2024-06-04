@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +52,15 @@ class ItemRequestMapperTest {
     }
 
     @Test
+    void toItemRequestTestWhenNull() {
+        ItemRequestDto itemRequestDto = null;
+
+        ItemRequest itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
+
+        assertNull(itemRequest);
+    }
+
+    @Test
     void toItemRequestDtoTest() {
         User user = new User(1L, "Mail", "mail@mail.ru");
         LocalDateTime time = LocalDateTime.now();
@@ -66,7 +76,24 @@ class ItemRequestMapperTest {
     }
 
     @Test
+    void toItemRequestDtoTestWhenNull() {
+        ItemRequest itemRequest = null;
+
+        ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequest);
+
+        assertNull(itemRequestDto);
+    }
+
+    @Test
     void getIdRequesterTest() {
+        User user = new User(99L, "Mail", "mail@mail.ru");
+        Long ownerId = user.getId();
+
+        assertEquals(99L, ownerId);
+    }
+
+    @Test
+    void getIdRequesterTestThenUserNull() {
         User user = new User(99L, "Mail", "mail@mail.ru");
         Long ownerId = user.getId();
 

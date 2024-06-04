@@ -28,11 +28,4 @@ public class BookingDtoWithItem {
         this.end = end;
         this.status = status;
     }
-
-    public BookingDtoWithItem(Long id, ItemDtoForBooking item, UserDtoForBooking booker, Status status) {
-        this.id = id;
-        this.item = item;
-        this.booker = booker;
-        this.status = status;
-    }
 }

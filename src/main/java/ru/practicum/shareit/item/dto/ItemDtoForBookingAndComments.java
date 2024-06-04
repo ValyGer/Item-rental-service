@@ -20,21 +20,6 @@ public class ItemDtoForBookingAndComments {
     private BookingLastNextDto lastBooking;
     private BookingLastNextDto nextBooking;
     private List<CommentDto> comments;
-
-    public ItemDtoForBookingAndComments(Long id, String name, String description, Boolean available) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-    }
-
-    public ItemDtoForBookingAndComments(Long id, String name, String description, Boolean available, List<CommentDto> comments) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.comments = comments;
-    }
 }
 
 

@@ -10,6 +10,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 class ItemMapperTest {
@@ -31,6 +32,14 @@ class ItemMapperTest {
     }
 
     @Test
+    void toItemDtoWhenNull() {
+        Item item = null;
+        ItemDto itemDto = itemMapper.toItemDto(item);
+
+        assertNull(itemDto);
+    }
+
+    @Test
     void toItem() {
         ItemDto itemDto = new ItemDto("Name of Item", "Description of Item", true, null);
 
@@ -40,5 +49,14 @@ class ItemMapperTest {
         assertEquals(item.getDescription(), itemDto.getDescription());
         assertEquals(item.getIsAvailable(), itemDto.getAvailable());
         assertEquals(item.getRequest(), itemDto.getRequestId());
+    }
+
+    @Test
+    void toItemWhenNull() {
+        ItemDto itemDto = null;
+
+        Item item = itemMapper.toItem(itemDto);
+
+        assertNull(item);
     }
 }

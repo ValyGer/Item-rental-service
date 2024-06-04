@@ -23,16 +23,6 @@ public class ItemRequestDto {
     private LocalDateTime created;
     private List<ItemDtoForRequest> items;
 
-    public ItemRequestDto(String description) {
-        this.description = description;
-    }
-
-    public ItemRequestDto(String description, Long ownerId, LocalDateTime created) {
-        this.description = description;
-        this.ownerId = ownerId;
-        this.created = created;
-    }
-
     public ItemRequestDto(Long id, String description, Long ownerId, LocalDateTime created) {
         this.id = id;
         this.description = description;

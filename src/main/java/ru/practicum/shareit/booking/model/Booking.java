@@ -48,22 +48,6 @@ public class Booking {
         this.end = end;
     }
 
-    public Booking(long bookingId, Item item, User booker, LocalDateTime start, LocalDateTime end, Status status) {
-        this.bookingId = bookingId;
-        this.item = item;
-        this.booker = booker;
-        this.start = start;
-        this.end = end;
-        this.status = status;
-    }
-
-    public Booking(Item item, User booker, LocalDateTime start, LocalDateTime end) {
-        this.item = item;
-        this.booker = booker;
-        this.start = start;
-        this.end = end;
-    }
-
     public Booking(Item item, User booker, LocalDateTime start, LocalDateTime end, Status status) {
         this.item = item;
         this.booker = booker;

@@ -23,19 +23,6 @@ public class ItemDto {
     private Boolean available;
     private Long requestId;
 
-    public ItemDto(String name, String description, Boolean available) {
-        this.name = name;
-        this.description = description;
-        this.available = available;
-    }
-
-    public ItemDto(long id, String name, String description, Boolean available) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.available = available;
-    }
-
     public ItemDto(String name, String description, Boolean available, Long requestId) {
         this.name = name;
         this.description = description;
