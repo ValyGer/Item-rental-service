@@ -44,5 +44,4 @@ class ItemDtoForBookingAndCommentsMapperTest {
         assertEquals(item.getIsAvailable(), itemDtoForBookingAndComments.getAvailable());
         assertEquals(item.getComments().size(), itemDtoForBookingAndComments.getComments().size());
     }
-
 }

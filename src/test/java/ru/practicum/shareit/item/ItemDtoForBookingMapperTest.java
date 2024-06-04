@@ -1,10 +1,12 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.dto.ItemDtoForBooking;
+import ru.practicum.shareit.item.dto.ItemDtoForBookingMapperImpl;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
