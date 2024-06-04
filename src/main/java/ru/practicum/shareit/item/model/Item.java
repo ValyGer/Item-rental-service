@@ -58,4 +58,15 @@ public class Item {
         this.isAvailable = isAvailable;
         this.request = request;
     }
+
+    public Item(long itemId, String name, String description, long owner, Boolean isAvailable, Long request) {
+        this.itemId = itemId;
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+        this.isAvailable = isAvailable;
+        this.request = request;
+        this.comments = comments;
+        this.bookings = bookings;
+    }
 }
