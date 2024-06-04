@@ -49,7 +49,7 @@ class ItemDtoForRequestMapperTest {
         ItemDtoForRequest itemDtoForRequest = itemDtoForRequestMapper.toItemDtoForRequest(item);
 
         assertNull(itemDtoForRequest);
-    };
+    }
 
     @Test
     void toItem() {
