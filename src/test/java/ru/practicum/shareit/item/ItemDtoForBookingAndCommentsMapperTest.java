@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 class ItemDtoForBookingAndCommentsMapperTest {
@@ -26,9 +26,9 @@ class ItemDtoForBookingAndCommentsMapperTest {
     @Test
     void toItemDtoForBookingAndComments() {
         LocalDateTime time = LocalDateTime.now();
-        List< Comment > comments = new ArrayList<>();
+        List<Comment> comments = new ArrayList<>();
         comments.add(new Comment("text"));
-        List< Booking > bookings = new ArrayList<>();
+        List<Booking> bookings = new ArrayList<>();
         User booker = new User(2L, "name", "email@mail.ru");
         Item item = new Item(1L, "telephone", "For call your friends", 1L, true, 2L);
         bookings.add(new Booking(1L, item, booker, time.plusMinutes(-20), time.plusMinutes(20)));
