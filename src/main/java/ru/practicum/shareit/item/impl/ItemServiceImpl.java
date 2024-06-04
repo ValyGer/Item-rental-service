@@ -47,6 +47,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     // Обновление вещи
+    @Transactional
     public Item updateItem(Long userId, Long itemId, Item item) throws NotFoundException {
         userService.getUserById(userId);
         try {
@@ -203,6 +204,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     // Добавление комментариев
+    @Transactional
     public Comment addComment(long userId, long itemId, Comment comment) {
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
