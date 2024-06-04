@@ -6,6 +6,7 @@ import ru.practicum.shareit.user.dto.UserMapperImpl;
 import ru.practicum.shareit.user.model.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UserMapperTest {
 
@@ -22,6 +23,14 @@ class UserMapperTest {
     }
 
     @Test
+    void toUserTestWhenUserDtoNull() {
+        UserDto userDto = null;
+        User userAfterTransformation = userMapper.toUser(userDto);
+        assertNull(userAfterTransformation);
+    }
+
+
+    @Test
     void toUserDtoTest() {
         User userInitial = new User(1L, "Name", "name@mail.ru");
         UserDto userDtoAfterTransformation = userMapper.toUserDto(userInitial);
@@ -29,5 +38,12 @@ class UserMapperTest {
         assertEquals(userInitial.getId(), userDtoAfterTransformation.getId());
         assertEquals(userInitial.getUserName(), userDtoAfterTransformation.getName());
         assertEquals(userInitial.getEmail(), userDtoAfterTransformation.getEmail());
+    }
+
+    @Test
+    void toUserDtoTestWhenUserNull() {
+        User userInitial = null;
+        UserDto userDtoAfterTransformation = userMapper.toUserDto(userInitial);
+        assertNull(userDtoAfterTransformation);
     }
 }

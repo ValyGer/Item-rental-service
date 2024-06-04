@@ -97,6 +97,23 @@ class UserServiceImplTest {
     }
 
     @Test
+    void updateUser_whenUserNotUpdated_thenReturnThrow() {
+        Long userId = 0L;
+        User oldUser = new User();
+        oldUser.setUserName("Name1");
+        oldUser.setEmail("user1@mail.ru");
+
+        User newUser = new User();
+        newUser.setUserName("Name2");
+        newUser.setEmail("user1@mail.ru");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(oldUser));
+        when(userRepository.save(any(User.class))).thenThrow(ConflictException.class);
+
+        assertThrows(ConflictException.class,
+                () -> userService.updateUser(userId, newUser));
+    }
+
+    @Test
     void getAllUsers_thenReturnAllUsers() {
         List<User> allUsers = new ArrayList<>();
         allUsers.add(new User(1L, "Name1", "user1@mail.ru"));

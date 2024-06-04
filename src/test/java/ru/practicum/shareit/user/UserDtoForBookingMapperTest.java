@@ -6,6 +6,7 @@ import ru.practicum.shareit.user.dto.UserDtoForBookingMapperImpl;
 import ru.practicum.shareit.user.model.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UserDtoForBookingMapperTest {
 
@@ -17,5 +18,13 @@ class UserDtoForBookingMapperTest {
         UserDtoForBooking userDtoAfterTransformation = userDtoForBookingMapper.userDtoForBooking(userInitial);
 
         assertEquals(userInitial.getId(), userDtoAfterTransformation.getId());
+    }
+
+    @Test
+    void userDtoForBookingTest_whenUserIsNull() {
+        User userInitial = null;
+        UserDtoForBooking userDtoAfterTransformation = userDtoForBookingMapper.userDtoForBooking(userInitial);
+
+        assertNull(userDtoAfterTransformation);
     }
 }
