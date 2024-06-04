@@ -5,11 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.shareit.item.dto.ItemDtoForRequest;
-import ru.practicum.shareit.item.dto.ItemDtoForRequestMapper;
 import ru.practicum.shareit.item.dto.ItemDtoForRequestMapperImpl;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapperImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -20,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 
 
 @ExtendWith(MockitoExtension.class)

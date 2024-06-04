@@ -32,7 +32,7 @@ class ItemRepositoryTest {
                 "name@mail.ru"
         ));
 
-        User user2 =  userRepository.save(new User(
+        User user2 = userRepository.save(new User(
                 "Secondary",
                 "mail@mail.ru"
         ));
