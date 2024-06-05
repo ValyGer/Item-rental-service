@@ -68,6 +68,19 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
+    void getAllItemRequestOfUser_thenReturnEmptyList() {
+        Long userId = 1L;
+        List<ItemRequest> allItemRequestOfUser = new ArrayList<>();
+
+        when(itemRequestRepository.findAllItemRequestByRequester_Id(userId, PageRequest.of(0, 20)))
+                .thenReturn(allItemRequestOfUser);
+
+        List<ItemRequest> allRequestSaved = new ArrayList<>(itemRequestService.getAllItemRequestOfUser(userId, 0, 20));
+
+        assertEquals(allRequestSaved.size(), 0);
+    }
+
+    @Test
     void getAllItemRequestOfUser_thenReturnThrow_sizeNegative() {
         ValidationException validationException = assertThrows(ValidationException.class,
                 () -> itemRequestService.getAllItemRequestOfUser(1L, 0, -2));
@@ -76,13 +89,13 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getAllItemRequestOfUser_thenReturnEmptyList() {
+    void getAllItemRequestOfOtherUsers_thenReturnEmptyList() {
         Long userId = 1L;
-
+        List<ItemRequest> allItemRequestOfUser = new ArrayList<>();
         when(itemRequestRepository.findAllItemRequestByRequester_IdIsNot(userId, PageRequest.of(0, 20)))
-                .thenReturn(new ArrayList<>());
+                .thenReturn(allItemRequestOfUser);
 
-        List<ItemRequest> allRequestSaved = new ArrayList<>(itemRequestService.getAllItemRequestOfOtherUsers(userId, 0, 20));
+        List<ItemRequest> allRequestSaved = itemRequestService.getAllItemRequestOfOtherUsers(userId, 0, 20);
 
         assertEquals(allRequestSaved.size(), 0);
     }
@@ -108,10 +121,21 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllItemRequestOfOtherUsers_thenReturnThrow_FromNegative() {
-        ValidationException validationException = assertThrows(ValidationException.class,
-                () -> itemRequestService.getAllItemRequestOfUser(1L, -7, 20));
+        Long userId = 1L;
+        int from = -7;
 
-        assertEquals(validationException.getMessage(), "Индекс первого элемента должен быть не отрицательным");
+        assertThrows(ValidationException.class,
+                () -> itemRequestService.getAllItemRequestOfOtherUsers(userId, from, 20));
+    }
+
+    @Test
+    void getAllItemRequestOfOtherUsers_thenReturnThrow_sizeNegative() {
+        Long userId = 1L;
+        int from = 1;
+        int size = -2;
+
+        assertThrows(ValidationException.class,
+                () -> itemRequestService.getAllItemRequestOfOtherUsers(userId, from, size));
     }
 
     @Test
@@ -132,7 +156,7 @@ class ItemRequestServiceImplTest {
         User user = new User(1L, "Name", "user@mail.ru");
         ItemRequest itemRequest = new ItemRequest(1L, "ItemRequest", user, LocalDateTime.now());
 
-        when(itemRequestRepository.findById(any(Long.class))).thenThrow(NotFoundException.class);
+        when(itemRequestRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class,
                 () -> itemRequestService.getItemRequest(itemRequest.getId(), user.getId()));
