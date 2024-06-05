@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
@@ -67,6 +68,47 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void createBooking_whenThrowValidation() {
+        LocalDateTime time = LocalDateTime.now();
+        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Booking booking = new Booking(1L, item, booker, time.plusMinutes(10L), time.plusMinutes(-10L));
+
+        assertThrows(ValidationException.class,
+                () -> bookingService.createBooking(booking));
+    }
+
+    @Test
+    void createBooking_whenUserNotFound() {
+        LocalDateTime time = LocalDateTime.now();
+        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Booking booking = new Booking(1L, item, booker, time.plusMinutes(-10L), time.plusMinutes(10L));
+
+        when(userService.getUserById(any(Long.class))).thenThrow(NotFoundException.class);
+
+        assertThrows(NotFoundException.class,
+                () -> bookingService.createBooking(booking));
+    }
+
+    @Test
+    void createBooking_whenBookingItemNotAvailable() {
+        LocalDateTime time = LocalDateTime.now();
+        Item item = new Item(1L, "Name", "About of item", 1L, false);
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Booking booking = new Booking(1L, item, booker, time.plusMinutes(-10L), time.plusMinutes(10L));
+
+        when(itemService.getItemsById(any(Long.class))).thenThrow(ValidationException.class);
+
+        assertThrows(ValidationException.class,
+                () -> bookingService.createBooking(booking));
+    }
+
+
+        @Test
     void setApprovedByOwner_isGood() {
         Item item = new Item(1L, "Name", "About of item", 1L, true);
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
@@ -217,6 +259,27 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void getAllBookingByUser_whenFromNegative() {
+        int form = -5;
+        int size = 20;
+        User user = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+
+        assertThrows(ValidationException.class,
+                () -> bookingService.getAllBookingByUser(form, size, user.getId(), State.ALL.toString()));
+    }
+
+    @Test
+    void getAllBookingByUser_whenNotKnowState() {
+        int form = 1;
+        int size = 20;
+        User user = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+
+        assertThrows(RuntimeException.class,
+                () -> bookingService.getAllBookingByUser(form, size, user.getId(), "Name"));
+    }
+
+
+    @Test
     void getAllBookingByOwner_whenStateALL() {
         PageRequest pageRequest = PageRequest.of(0, 20);
         User owner = new User(2L, "Name2", "mail@mail.ru"); // арендатор
@@ -314,6 +377,26 @@ class BookingServiceImplTest {
 
         verify(bookingRepository, times(1))
                 .findAllByItem_OwnerAndStatusOrderByStartDesc(owner.getId(), Status.REJECTED, pageRequest);
+    }
+
+    @Test
+    void getAllBookingByOwner_whenFromNegative() {
+        int form = -5;
+        int size = 20;
+        User user = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+
+        assertThrows(ValidationException.class,
+                () -> bookingService.getAllBookingByOwner(form, size, user.getId(), State.ALL.toString()));
+    }
+
+    @Test
+    void getAllBookingByOwner_whenNotKnowState() {
+        int form = 1;
+        int size = 20;
+        User user = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+
+        assertThrows(RuntimeException.class,
+                () -> bookingService.getAllBookingByOwner(form, size, user.getId(), "Name"));
     }
 
     @Test
