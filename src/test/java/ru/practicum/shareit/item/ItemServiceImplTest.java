@@ -103,6 +103,20 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void updateItem_whenUpdateIsGood_responseThrow() {
+        Long userId = 0L;
+        Long itemId = 0L;
+        User user = new User();
+        Item oldItem = new Item("name", "description", true);
+        Item newItem = new Item("New Name", "New description", true);
+
+        when(userService.getUserById(userId)).thenReturn(user);
+        when(itemRepository.getReferenceById(itemId)).thenThrow(NotFoundException.class);
+
+        assertThrows(NotFoundException.class, () -> itemService.updateItem(user.getId(), itemId, newItem));
+    }
+
+    @Test
     void getItemsById_whenItemFound_thenReturnItem() {
         Long itemId = 0L;
         Item item = new Item();

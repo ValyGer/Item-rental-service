@@ -50,7 +50,6 @@ class BookingServiceImplTest {
     @Test
     void createBooking_whenCreateIsSuccess() {
         Item item = new Item(1L, "Name", "About of item", 1L, true);
-        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
         Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L), LocalDateTime.now().plusMinutes(10L));
 
@@ -71,7 +70,6 @@ class BookingServiceImplTest {
     void createBooking_whenThrowValidation() {
         LocalDateTime time = LocalDateTime.now();
         Item item = new Item(1L, "Name", "About of item", 1L, true);
-        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
         Booking booking = new Booking(1L, item, booker, time.plusMinutes(10L), time.plusMinutes(-10L));
 
@@ -84,10 +82,10 @@ class BookingServiceImplTest {
         LocalDateTime time = LocalDateTime.now();
         Item item = new Item(1L, "Name", "About of item", 1L, true);
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
-        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
-        Booking booking = new Booking(1L, item, booker, time.plusMinutes(-10L), time.plusMinutes(10L));
+        Booking booking = new Booking(1L, item, owner, time.plusMinutes(-10L), time.plusMinutes(10L));
 
-        when(userService.getUserById(any(Long.class))).thenThrow(NotFoundException.class);
+        when(userService.getUserById(any(Long.class))).thenReturn(owner);
+        when(itemService.getItemsById(any(Long.class))).thenReturn(item);
 
         assertThrows(NotFoundException.class,
                 () -> bookingService.createBooking(booking));
@@ -97,11 +95,10 @@ class BookingServiceImplTest {
     void createBooking_whenBookingItemNotAvailable() {
         LocalDateTime time = LocalDateTime.now();
         Item item = new Item(1L, "Name", "About of item", 1L, false);
-        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
         Booking booking = new Booking(1L, item, booker, time.plusMinutes(-10L), time.plusMinutes(10L));
 
-        when(itemService.getItemsById(any(Long.class))).thenThrow(ValidationException.class);
+        when(itemService.getItemsById(any(Long.class))).thenReturn(item);
 
         assertThrows(ValidationException.class,
                 () -> bookingService.createBooking(booking));
