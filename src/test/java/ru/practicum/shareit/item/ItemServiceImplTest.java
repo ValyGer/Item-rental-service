@@ -8,8 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.dto.BookingLastNextDto;
 import ru.practicum.shareit.booking.dto.BookingLastNextDtoMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.CommentMapper;
@@ -28,8 +30,7 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -147,6 +148,26 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void getAllItemsUser_whenAllItemsFoundWithComments_thenReturnListOfItem() {
+        Long userId = 0L;
+        List<Item> items = new ArrayList<>();
+        items.add(new Item("Name of Item", "Description of Item", 1L, true, null));
+
+        List<Comment> comments = new ArrayList<>();
+        comments.add(new Comment("text"));
+        when(userService.getUserById(any(Long.class))).thenReturn(new User());
+        when(itemRepository.findItemsByOwnerOrderByItemIdAsc(any(Long.class))).thenReturn(items);
+        when(commentRepository.findAllByItemOrderByItem(any(Item.class))).thenReturn(comments);
+        when(itemDtoForBookingAndCommentsMapper.toItemDtoForBookingAndComments(any(Item.class))).thenReturn(new ItemDtoForBookingAndComments());
+
+        itemService.getAllItemsUser(userId);
+
+        verify(itemRepository, times(1)).findItemsByOwnerOrderByItemIdAsc(userId);
+        verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
+        verify(commentMapper, times(1)).toCommentDto(any(Comment.class));
+    }
+
+    @Test
     void getAllItemsUser_whenUserNotFound_thenReturnToThrow() {
         Long userId = 0L;
         when(userService.getUserById(any(Long.class))).thenThrow(NotFoundException.class);
@@ -197,6 +218,27 @@ class ItemServiceImplTest {
 
         verify(itemRepository, times(1)).findById(userId);
         verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
+    }
+
+    @Test
+    void getItemWithBooker_whenItemsFoundWithComments_thenReturnListOfItemWithBooker() {
+        Long itemId = 0L;
+        Long userId = 0L;
+        Item item = new Item();
+        List<Comment> commentsAboutItem = new ArrayList<>();
+        commentsAboutItem.add(new Comment("text"));
+
+        ItemDtoForBookingAndComments itemFromBd = new ItemDtoForBookingAndComments();
+
+        when(itemRepository.findById(any(Long.class))).thenReturn(Optional.of(item));
+        when(commentRepository.findAllByItemOrderByItem(any(Item.class))).thenReturn(commentsAboutItem);
+        when(itemDtoForBookingAndCommentsMapper.toItemDtoForBookingAndComments(any(Item.class))).thenReturn(itemFromBd);
+
+        itemService.getItemWithBooker(itemId, userId);
+
+        verify(itemRepository, times(1)).findById(userId);
+        verify(commentRepository, atMostOnce()).findAllByItemOrderByItem(any(Item.class));
+        verify(commentMapper, times(1)).toCommentDto(any(Comment.class));
     }
 
     @Test
