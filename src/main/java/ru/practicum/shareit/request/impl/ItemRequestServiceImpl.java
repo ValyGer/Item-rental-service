@@ -42,7 +42,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ValidationException("Количество элементов для отображения должно быть положительным");
         }
         userService.getUserById(userId);
-        List<ItemRequest> allItemRequestOfUser = itemRequestRepository.findAllItemRequestByRequester_Id(userId, PageRequest.of(from, size));
+        List<ItemRequest> allItemRequestOfUser = itemRequestRepository.findAllByRequesterId(userId, PageRequest.of(from, size));
         if (allItemRequestOfUser.isEmpty()) {
             return new ArrayList<>();
         } else {

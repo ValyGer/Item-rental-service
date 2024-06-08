@@ -10,11 +10,11 @@ public interface ItemMapper {
     @Mapping(source = "itemId", target = "id")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "isAvailable", target = "available")
-    @Mapping(source = "request", target = "requestId")
+    @Mapping(source = "request.id", target = "requestId")
     ItemDto toItemDto(Item item);
 
     @Mapping(source = "name", target = "name")
     @Mapping(source = "available", target = "isAvailable")
-    @Mapping(source = "requestId", target = "request")
+    @Mapping(source = "itemDto.requestId", target = "request.id")
     Item toItem(ItemDto itemDto);
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "item")
 @NoArgsConstructor
 @Entity
 @Table(name = "bookings")

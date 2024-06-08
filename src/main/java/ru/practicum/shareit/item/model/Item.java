@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -23,12 +25,14 @@ public class Item {
     private long itemId; // идентификатор в базе
     private String name; // наименование
     private String description; // описание
-    @Column(name = "owner_id")
-    private long owner; // номер пользователя которому принадлежит вещь
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner; // номер пользователя которому принадлежит вещь
     @Column(name = "status")
     private Boolean isAvailable; // статус вещи: доступна не доступна
-    @Column(name = "request_id")
-    private Long request; // если вещь создана по запросу, то тут будет ссылка на запрос
+    @ManyToOne
+    @JoinColumn(name = "request_id")
+    private ItemRequest request; // если вещь создана по запросу, то тут будет ссылка на запрос
     @OneToMany(mappedBy = "item")
     private List<Comment> comments = new ArrayList<>(); // список комментариев
     @OneToMany(mappedBy = "item")
@@ -40,7 +44,7 @@ public class Item {
         this.isAvailable = isAvailable;
     }
 
-    public Item(long itemId, String name, String description, long owner, Boolean isAvailable) {
+    public Item(long itemId, String name, String description, User owner, Boolean isAvailable) {
         this.itemId = itemId;
         this.name = name;
         this.description = description;
@@ -48,7 +52,7 @@ public class Item {
         this.isAvailable = isAvailable;
     }
 
-    public Item(String name, String description, long owner, boolean isAvailable, Long request) {
+    public Item(String name, String description, User owner, boolean isAvailable, ItemRequest request) {
         this.name = name;
         this.description = description;
         this.owner = owner;
@@ -56,14 +60,10 @@ public class Item {
         this.request = request;
     }
 
-    public Item(long itemId, String name, String description, long owner, Boolean isAvailable, Long request) {
-        this.itemId = itemId;
+    public Item(String name, String description, User owner, Boolean isAvailable) {
         this.name = name;
         this.description = description;
         this.owner = owner;
         this.isAvailable = isAvailable;
-        this.request = request;
-        this.comments = comments;
-        this.bookings = bookings;
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @Table(name = "requests")
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "items")
 @NoArgsConstructor
 public class ItemRequest {
     @Id

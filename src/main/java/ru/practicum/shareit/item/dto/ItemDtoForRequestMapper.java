@@ -9,11 +9,11 @@ public interface ItemDtoForRequestMapper {
 
     @Mapping(source = "itemId", target = "id")
     @Mapping(source = "isAvailable", target = "available")
-    @Mapping(source = "request", target = "requestId")
+    @Mapping(source = "request.id", target = "requestId")
     ItemDtoForRequest toItemDtoForRequest(Item item);
 
     @Mapping(source = "id", target = "itemId")
     @Mapping(source = "available", target = "isAvailable")
-    @Mapping(source = "requestId", target = "request")
+    @Mapping(source = "requestId", target = "request.id")
     Item toItem(ItemDtoForRequest itemDtoForRequest);
 }
