@@ -8,8 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItem;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItemMapper;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
@@ -34,18 +36,23 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final BookingDtoWithItemMapper bookingDtoWithItemMapper;
+    private final BookingMapper bookingMapper;
 
     @Autowired
     @Lazy
-    public BookingServiceImpl(ItemService itemService, UserService userService, BookingRepository bookingRepository, BookingDtoWithItemMapper bookingDtoWithItemMapper) {
+    public BookingServiceImpl(ItemService itemService, UserService userService, BookingRepository bookingRepository,
+                              BookingDtoWithItemMapper bookingDtoWithItemMapper, BookingMapper bookingMapper) {
         this.itemService = itemService;
         this.userService = userService;
         this.bookingRepository = bookingRepository;
         this.bookingDtoWithItemMapper = bookingDtoWithItemMapper;
+        this.bookingMapper = bookingMapper;
     }
 
     // Добавление нового бронирования
-    public Booking createBooking(Booking booking) {
+    public Booking createBooking(long bookerId, BookingDto bookingDto) {
+        bookingDto.setBookerId(bookerId);
+        Booking booking = bookingMapper.toBooking(bookingDto);
         if (booking.getStart().isAfter(booking.getEnd()) || booking.getStart().isEqual(booking.getEnd())) {
             log.info("Время начала бронирования указано после окончания бронирования или равно ему");
             throw new ValidationException("Время начала бронирования указано после окончания бронирования или равно ему");

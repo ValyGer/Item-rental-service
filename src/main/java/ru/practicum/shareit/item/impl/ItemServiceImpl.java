@@ -13,10 +13,7 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentMapper;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
@@ -40,9 +37,11 @@ public class ItemServiceImpl implements ItemService {
     private final ItemDtoForBookingAndCommentsMapper itemDtoForBookingAndCommentsMapper;
     private final BookingLastNextDtoMapper bookingLastNextDtoMapper;
     private final CommentMapper commentMapper;
+    private final ItemMapper itemMapper;
 
     // Добавление вещи
-    public Item createItem(Long userId, Item item) throws NotFoundException {
+    public Item createItem(Long userId, ItemDto itemDto) throws NotFoundException {
+        Item item = itemMapper.toItem(itemDto);
         userService.getUserById(userId);
         item.setOwner(userService.getUserById(userId));
         log.info("Вещь успешно добавлена");
@@ -54,7 +53,8 @@ public class ItemServiceImpl implements ItemService {
 
     // Обновление вещи
     @Transactional
-    public Item updateItem(Long userId, Long itemId, Item item) throws NotFoundException {
+    public Item updateItem(Long userId, Long itemId, ItemDto itemDto) throws NotFoundException {
+        Item item = itemMapper.toItem(itemDto);
         userService.getUserById(userId);
         try {
             Item saved = itemRepository.getReferenceById(itemId);
@@ -211,7 +211,8 @@ public class ItemServiceImpl implements ItemService {
 
     // Добавление комментариев
     @Transactional
-    public Comment addComment(long userId, long itemId, Comment comment) {
+    public Comment addComment(long userId, long itemId, CommentDto commentDto) {
+        Comment comment = commentMapper.toComment(commentDto);
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
             User user = userService.getUserById(userId);
