@@ -11,9 +11,6 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
