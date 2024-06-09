@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDtoForBooking;
 import ru.practicum.shareit.item.dto.ItemDtoForBookingMapperImpl;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ class ItemDtoForBookingMapperTest {
         LocalDateTime time = LocalDateTime.now();
         List<Booking> bookings = new ArrayList<>();
         User booker = new User(2L, "name", "email@mail.ru");
-        Item item = new Item(1L, "telephone", "For call your friends", 1L, true, 2L);
+        Item item = new Item(1L, "telephone", "For call your friends", new User(), true, new ItemRequest());
         bookings.add(new Booking(1L, item, booker, time.plusMinutes(-20), time.plusMinutes(20)));
 
         ItemDtoForBooking itemDtoForBooking = itemDtoForBookingMapper.toItemDtoForBooking(item);

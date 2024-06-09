@@ -21,7 +21,7 @@ class ItemMapperTest {
     @Test
     void toItemDto() {
         User user = new User(1L, "User", "yandex@mail.ru");
-        Item item = new Item(1L, "Name of Item", "Description of Item", user.getId(), true);
+        Item item = new Item(1L, "Name of Item", "Description of Item", user, true);
 
         ItemDto itemDto = itemMapper.toItemDto(item);
 
@@ -48,7 +48,6 @@ class ItemMapperTest {
         assertEquals(item.getName(), itemDto.getName());
         assertEquals(item.getDescription(), itemDto.getDescription());
         assertEquals(item.getIsAvailable(), itemDto.getAvailable());
-        assertEquals(item.getRequest(), itemDto.getRequestId());
     }
 
     @Test

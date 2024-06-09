@@ -61,8 +61,7 @@ class BookingControllerTest {
         BookingDto bookingDto = new BookingDto(1L, 1L, start, end);
         BookingDtoWithItem bookingDtoWithItem = new BookingDtoWithItem(1L, item, booker, start, end, Status.WAITING);
 
-        when(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService
-                .createBooking(any())))
+        when(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService.createBooking(any(long.class), any(BookingDto.class))))
                 .thenReturn(bookingDtoWithItem);
 
         String result = mockMvc.perform(post("/bookings")
@@ -88,7 +87,7 @@ class BookingControllerTest {
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().is(400));
 
-        verify(bookingService, never()).createBooking(bookingMapper.toBooking(bookingDto));
+        verify(bookingService, never()).createBooking(1L ,bookingDto);
     }
 
     @SneakyThrows

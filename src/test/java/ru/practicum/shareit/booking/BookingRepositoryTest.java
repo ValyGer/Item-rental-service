@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class BookingRepositoryTest {
 
     Long bookingId;
-    Long userId;
-    Long userId1;
+    User user;
+    User user1;
     Long itemId;
 
     @Autowired
@@ -52,18 +52,19 @@ class BookingRepositoryTest {
                 "Secondary",
                 "mail@mail.ru"
         ));
-        userId = user2L.getId();
+        user = user2L;
 
         User user3L = userRepository.save(new User(
                 "User",
                 "user@mail.ru"
         ));
-        userId1 = user3L.getId();
+
+        user1 = user3L;
 
         Item item1L = itemRepository.save(new Item(
                 "Telephone",
                 "A device for calls and correspondence with your friends",
-                user1L.getId(),
+                user1L,
                 true,
                 null
         ));
@@ -71,16 +72,17 @@ class BookingRepositoryTest {
         Item item2L = itemRepository.save(new Item(
                 "Camera",
                 "Allows you to take great photos",
-                user2L.getId(),
+                user2L,
                 true,
                 null
         ));
+
         itemId = item2L.getItemId();
 
         Item item3L = itemRepository.save(new Item(
                 "Curtains",
                 "They will hide you from the sun",
-                user1L.getId(),
+                user1L,
                 false,
                 null
         ));
@@ -121,11 +123,11 @@ class BookingRepositoryTest {
 
     @Test
     void findAllBookingsForBookerWithStartAndEndTest() {
-        User user = userRepository.getReferenceById(userId1);
+        User user = userRepository.getReferenceById(user1.getId());
         LocalDateTime start = time.plusMinutes(-10L);
         LocalDateTime end = time.plusMinutes(10L);
         PageRequest pageRequest = PageRequest.of(0, 10);
-        List<Booking> listOfBooking = bookingRepository.findAllBookingsForBookerWithStartAndEnd(user, start, end, pageRequest);
+        List<Booking> listOfBooking = bookingRepository.findAllBookingsForBooker_IdWithStartAndEnd(user.getId(), start, end, pageRequest);
 
         assertEquals(1, listOfBooking.size());
     }
@@ -135,7 +137,7 @@ class BookingRepositoryTest {
         LocalDateTime now = time.plusMinutes(5L);
         PageRequest pageRequest = PageRequest.of(0, 10);
         List<Booking> listOfBooking = bookingRepository
-                .findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(userId, now, pageRequest);
+                .findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(user, now, pageRequest);
 
         assertFalse(listOfBooking.isEmpty());
         assertEquals(1, listOfBooking.size());
@@ -154,7 +156,7 @@ class BookingRepositoryTest {
     @Test
     void findByBookingByItemAndBookerAndEndBeforeTest() {
         Optional<Item> item = itemRepository.findById(itemId);
-        Optional<User> user = userRepository.findById(userId1);
+        Optional<User> user = userRepository.findById(user1.getId());
         List<Booking> listOfBooking = bookingRepository
                 .findByBookingByItemAndBookerAndEndBefore(item.get(), user.get(), time.plusMinutes(-20L));
 

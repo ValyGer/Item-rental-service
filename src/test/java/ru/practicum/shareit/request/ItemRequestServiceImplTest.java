@@ -8,6 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.impl.ItemRequestServiceImpl;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
@@ -36,24 +38,31 @@ class ItemRequestServiceImplTest {
     @Mock
     private ItemRequestRepository itemRequestRepository;
 
+    @Mock
+    private ItemRequestMapper itemRequestMapper;
+
     @Test
     void createItemRequest_whenResponseStatusOk() {
-        ItemRequest itemRequest = new ItemRequest(1L, "ItemRequest", new User(), LocalDateTime.now());
+        ItemRequestDto itemRequestDto = new ItemRequestDto();
+        ItemRequest itemRequest = new ItemRequest();
+        when(itemRequestMapper.toItemRequest(any(ItemRequestDto.class))).thenReturn(itemRequest);
         when(itemRequestRepository.save(any(ItemRequest.class))).thenReturn(itemRequest);
 
-        ItemRequest itemRequestSaved = itemRequestService.createItemRequest(itemRequest, 1L);
+        ItemRequest itemRequestSaved = itemRequestService.createItemRequest(itemRequestDto, 1L);
 
-        assertEquals(itemRequestSaved.getDescription(), "ItemRequest");
+        assertEquals(itemRequestSaved.getDescription(), itemRequest.getDescription());
     }
 
     @Test
     void createItemRequest_whenItemRequestNotCreated_thenReturnThrow() {
         User user = new User();
+        ItemRequestDto itemRequestDto = new ItemRequestDto();
         ItemRequest itemRequest = new ItemRequest();
+        when(itemRequestMapper.toItemRequest(any(ItemRequestDto.class))).thenReturn(itemRequest);
         when(itemRequestRepository.save(any(ItemRequest.class))).thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class,
-                () -> itemRequestService.createItemRequest(itemRequest, user.getId()));
+                () -> itemRequestService.createItemRequest(itemRequestDto, user.getId()));
     }
 
     @Test
@@ -72,7 +81,7 @@ class ItemRequestServiceImplTest {
         Long userId = 1L;
         List<ItemRequest> allItemRequestOfUser = new ArrayList<>();
 
-        when(itemRequestRepository.findAllItemRequestByRequester_Id(userId, PageRequest.of(0, 20)))
+        when(itemRequestRepository.findAllByRequesterId(userId, PageRequest.of(0, 20)))
                 .thenReturn(allItemRequestOfUser);
 
         List<ItemRequest> allRequestSaved = new ArrayList<>(itemRequestService.getAllItemRequestOfUser(userId, 0, 20));
@@ -111,7 +120,7 @@ class ItemRequestServiceImplTest {
     @Test
     void getAllItemRequestOfOtherUsers_whenAllParametersIsGood_thenReturnAllItem() {
         Long userId = 1L;
-        when(itemRequestRepository.findAllItemRequestByRequester_Id(userId, PageRequest.of(0, 20)))
+        when(itemRequestRepository.findAllByRequesterId(userId, PageRequest.of(0, 20)))
                 .thenReturn(List.of(new ItemRequest()));
 
         List<ItemRequest> allRequestSaved = new ArrayList<>(itemRequestService.getAllItemRequestOfUser(userId, 0, 20));

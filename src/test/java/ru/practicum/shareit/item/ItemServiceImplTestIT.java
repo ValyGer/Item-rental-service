@@ -4,16 +4,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingLastNextDtoMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.item.dto.CommentMapper;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.impl.ItemServiceImpl;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -43,50 +43,47 @@ class ItemServiceImplTestIT {
 
     @Test
     void createItemTest() {
-        User user = new User("User", "yandex@mail.ru");
-        User savedUser = userService.createUser(user);
-        Item item = new Item("Name of Item", "Description of Item", savedUser.getId(), true, null);
+        UserDto userDto = new UserDto("User", "yandex@mail.ru");
+        User savedUser = userService.createUser(userDto);
+        ItemDto itemDto = new ItemDto("Name of Item", "Description of Item", true, null);
 
-        Item savedItem = itemService.createItem(savedUser.getId(), item);
+        Item savedItem = itemService.createItem(savedUser.getId(), itemDto);
 
-        assertEquals(item.getItemId(), savedItem.getItemId());
-        assertEquals(item.getName(), savedItem.getName());
-        assertEquals(item.getDescription(), savedItem.getDescription());
-        assertEquals(item.getIsAvailable(), savedItem.getIsAvailable());
-        assertEquals(item.getOwner(), savedItem.getOwner());
+        assertNotNull(savedItem.getItemId());
+        assertEquals(itemDto.getName(), savedItem.getName());
+        assertEquals(itemDto.getDescription(), savedItem.getDescription());
+        assertEquals(itemDto.getAvailable(), savedItem.getIsAvailable());
+        assertEquals(savedUser.getId(), savedItem.getOwner().getId());
     }
 
     @Test
     void updateItemTest() {
-        User user = new User("User1", "yandex1@mail.ru");
-        User savedUser = userService.createUser(user);
-        Item itemOld = new Item("Name of Item1", "Description of Item1", savedUser.getId(), true,
-                null);
-        Item savedItemOld = itemService.createItem(savedUser.getId(), itemOld);
-        Item itemNew = new Item("Name of Item isNew", "Description of New Item", savedUser.getId(),
-                true, null);
+        UserDto userDto = new UserDto("User1", "yandex1@mail.ru");
+        User savedUser = userService.createUser(userDto);
+        ItemDto itemOldDto = new ItemDto("Name of Item1", "Description of Item1", true, null);
+        Item savedItemOld = itemService.createItem(savedUser.getId(), itemOldDto);
+        ItemDto itemNewDto = new ItemDto("Name of Item isNew", "Description of New Item", true, null);
 
-        Item updateItem = itemService.updateItem(savedUser.getId(), itemOld.getItemId(), itemNew);
+        Item updateItem = itemService.updateItem(savedUser.getId(), savedItemOld.getItemId(), itemNewDto);
 
         assertEquals(savedItemOld.getItemId(), updateItem.getItemId());
         assertNotEquals(savedItemOld.getName(), updateItem.getName());
         assertNotEquals(savedItemOld.getDescription(), updateItem.getDescription());
         assertEquals(savedItemOld.getIsAvailable(), updateItem.getIsAvailable());
-        assertEquals(savedItemOld.getOwner(), updateItem.getOwner());
+        assertEquals(savedItemOld.getOwner().getId(), updateItem.getOwner().getId());
     }
 
     @Test
     void getAllItemsUserTest() {
-        User user = new User("User2", "yandex2@mail.ru");
-        User savedUser = userService.createUser(user);
-        Item item1 = new Item("Name of Item11", "Description of Item11", savedUser.getId(), true,
+        UserDto userDto = new UserDto("User2", "yandex2@mail.ru");
+        User savedUser = userService.createUser(userDto);
+        ItemDto itemDto1 = new ItemDto("Name of Item11", "Description of Item11", true,
                 null);
-        Item savedItem1 = itemService.createItem(savedUser.getId(), item1);
-        Item item2 = new Item("Name device12", "Description of device12", savedUser.getId(),
-                true, null);
-        Item savedItem2 = itemService.createItem(savedUser.getId(), item2);
+        Item savedItem1 = itemService.createItem(savedUser.getId(), itemDto1);
+        ItemDto itemDto2 = new ItemDto("Name device12", "Description of device12",true, null);
+        Item savedItem2 = itemService.createItem(savedUser.getId(), itemDto2);
 
-        List<ItemDtoForBookingAndComments> allItemsOfUser = itemService.getAllItemsUser(user.getId());
+        List<ItemDtoForBookingAndComments> allItemsOfUser = itemService.getAllItemsUser(savedUser.getId());
         System.out.println(allItemsOfUser);
         assertFalse(allItemsOfUser.isEmpty());
         assertEquals(2, allItemsOfUser.size());
@@ -103,11 +100,11 @@ class ItemServiceImplTestIT {
 
     @Test
     void getItemsByIdTest() {
-        User user = new User("User3", "yandex3@mail.ru");
-        User savedUser = userService.createUser(user);
-        Item item = new Item("Name of Item23", "Description of Item23", savedUser.getId(), true,
+        UserDto userDto = new UserDto("User3", "yandex3@mail.ru");
+        User savedUser = userService.createUser(userDto);
+        ItemDto itemDto = new ItemDto("Name of Item23", "Description of Item23", true,
                 null);
-        Item savedItem = itemService.createItem(savedUser.getId(), item);
+        Item savedItem = itemService.createItem(savedUser.getId(), itemDto);
 
         Item itemFromBd = itemService.getItemsById(savedItem.getItemId());
 
@@ -115,19 +112,20 @@ class ItemServiceImplTestIT {
         assertEquals(itemFromBd.getName(), savedItem.getName());
         assertEquals(itemFromBd.getDescription(), savedItem.getDescription());
         assertEquals(itemFromBd.getIsAvailable(), savedItem.getIsAvailable());
-        assertEquals(itemFromBd.getOwner(), savedItem.getOwner());
+        assertEquals(itemFromBd.getOwner().getId(), savedItem.getOwner().getId());
     }
 
     @Test
     void searchAvailableItemsTest() {
-        User user = new User("User10", "yandex10@mail.ru");
-        User savedUser = userService.createUser(user);
-        Item item1 = new Item("FirstItem in List", "Description of FirstItem", savedUser.getId(), true,
+        UserDto userDto = new UserDto("User10", "yandex10@mail.ru");
+        User savedUser = userService.createUser(userDto);
+        Item item1 = new Item("FirstItem in List", "Description of FirstItem", savedUser, true);
+        ItemDto itemDto1 = new ItemDto("FirstItem in List", "Description of FirstItem", true,
                 null);
-        Item savedItem1 = itemService.createItem(savedUser.getId(), item1);
-        Item item2 = new Item("SecondItem", "Description of SecondItem of list", savedUser.getId(), true,
+        Item savedItem1 = itemService.createItem(savedUser.getId(), itemDto1);
+        ItemDto itemDto2 = new ItemDto("SecondItem", "Description of SecondItem of list", true,
                 null);
-        Item savedItem2 = itemService.createItem(savedUser.getId(), item2);
+        Item savedItem2 = itemService.createItem(savedUser.getId(), itemDto2);
 
         List<Item> resultList = itemService.searchAvailableItems("list");
 
@@ -138,20 +136,20 @@ class ItemServiceImplTestIT {
     @Test
     void addCommentTest() {
         LocalDateTime time = LocalDateTime.now();
-        User user = new User("User20", "yandex20@mail.ru");
-        User savedUser = userService.createUser(user); // владелец
-        Item item = new Item("Item111", "Description of Item", savedUser.getId(), true,
-                null);
-        Item savedItem = itemService.createItem(savedUser.getId(), item); // вещь
-        User booker = new User("Booker", "booker@mail.ru");
-        User savedBooker = userService.createUser(booker); // арендатор
-        Booking booking = new Booking(savedItem, savedBooker, time.plusMinutes(-125L), time.plusMinutes(-50L),
+        UserDto userDto = new UserDto("User20", "yandex20@mail.ru");
+        User savedUser = userService.createUser(userDto); // владелец
+        ItemDto itemDto = new ItemDto("Item111", "Description of Item", true, null);
+        Item savedItem = itemService.createItem(savedUser.getId(), itemDto); // вещь
+        savedItem.setOwner(savedUser);
+        UserDto bookerDto = new UserDto("Booker", "booker@mail.ru");
+        User savedBooker = userService.createUser(bookerDto); // арендатор
+        BookingDto bookingDto = new BookingDto(savedItem.getItemId(), savedBooker.getId(), time.plusMinutes(-125L), time.plusMinutes(-50L),
                 Status.APPROVED); // создаем бронирование
-        bookingService.createBooking(booking);
-        Comment comment = new Comment("This is first comment");
+        bookingService.createBooking(savedBooker.getId(), bookingDto);
+        CommentDto commentDto = new CommentDto("This is first comment");
 
-        Comment savedComment = itemService.addComment(savedBooker.getId(), savedItem.getItemId(), comment);
+        Comment savedComment = itemService.addComment(savedBooker.getId(), savedItem.getItemId(), commentDto);
 
-        assertEquals(savedComment, comment);
+        assertEquals(savedComment.getText(), commentDto.getText());
     }
 }

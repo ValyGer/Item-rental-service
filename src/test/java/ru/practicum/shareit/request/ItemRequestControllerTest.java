@@ -42,10 +42,9 @@ class ItemRequestControllerTest {
     @Test
     void createItemRequest_whenItemRequestIsCreate_thenResponseStatusOk() {
         ItemRequestDto itemRequestDto = new ItemRequestDto(1L, "ItemRequest", 1L, LocalDateTime.now());
-        ItemRequest itemRequest = new ItemRequest(1L, "ItemRequest", user, LocalDateTime.now());
 
         when(itemRequestMapper
-                .toItemRequestDto(itemRequestService.createItemRequest(itemRequest, user.getId())))
+                .toItemRequestDto(itemRequestService.createItemRequest(itemRequestDto, user.getId())))
                 .thenReturn(itemRequestDto);
 
         String result = mockMvc.perform(post("/requests")
@@ -64,10 +63,8 @@ class ItemRequestControllerTest {
     @Test
     void createItemRequest_whenItemRequestIsCreate_thenResponseStatusBadRequest() {
         ItemRequestDto itemRequestDto = new ItemRequestDto(1L, null, 1L, LocalDateTime.now());
-        ItemRequest itemRequest = new ItemRequest(1L, null, user, LocalDateTime.now());
 
-        when(itemRequestMapper
-                .toItemRequestDto(itemRequestService.createItemRequest(itemRequest, user.getId())))
+        when(itemRequestService.createItemRequest(itemRequestDto, user.getId()))
                 .thenThrow(NotFoundException.class);
 
         mockMvc.perform(post("/requests")
@@ -76,7 +73,7 @@ class ItemRequestControllerTest {
                         .content(objectMapper.writeValueAsString(itemRequestDto)))
                 .andExpect(status().is(400));
 
-        verify(itemRequestService, never()).createItemRequest(itemRequestMapper.toItemRequest(itemRequestDto), user.getId());
+        verify(itemRequestService, never()).createItemRequest(itemRequestDto, user.getId());
     }
 
     @SneakyThrows

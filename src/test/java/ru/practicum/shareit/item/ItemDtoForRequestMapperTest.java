@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDtoForRequest;
 import ru.practicum.shareit.item.dto.ItemDtoForRequestMapperImpl;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -31,14 +32,14 @@ class ItemDtoForRequestMapperTest {
         comments.add(new Comment("text"));
         List<Booking> bookings = new ArrayList<>();
         User booker = new User(2L, "name", "email@mail.ru");
-        Item item = new Item(1L, "telephone", "For call your friends", 1L, true, 2L);
+        Item item = new Item(1L, "telephone", "For call your friends", new User(), true, new ItemRequest());
         bookings.add(new Booking(1L, item, booker, time.plusMinutes(-20), time.plusMinutes(20)));
 
         ItemDtoForRequest itemDtoForRequest = itemDtoForRequestMapper.toItemDtoForRequest(item);
 
         assertEquals(item.getItemId(), itemDtoForRequest.getId());
         assertEquals(item.getIsAvailable(), itemDtoForRequest.getAvailable());
-        assertEquals(item.getRequest(), itemDtoForRequest.getRequestId());
+        assertEquals(item.getRequest().getId(), itemDtoForRequest.getRequestId());
         assertEquals(item.getName(), itemDtoForRequest.getName());
         assertEquals(item.getDescription(), itemDtoForRequest.getDescription());
     }
@@ -61,7 +62,7 @@ class ItemDtoForRequestMapperTest {
 
         assertEquals(itemDtoForRequest.getId(), item.getItemId());
         assertEquals(itemDtoForRequest.getAvailable(), item.getIsAvailable());
-        assertEquals(itemDtoForRequest.getRequestId(), item.getRequest());
+        assertEquals(itemDtoForRequest.getRequestId(), item.getRequest().getId());
         assertEquals(itemDtoForRequest.getName(), item.getName());
         assertEquals(itemDtoForRequest.getDescription(), item.getDescription());
     }

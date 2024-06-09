@@ -22,9 +22,8 @@ public class ItemRequestController {
     @PostMapping // Добавление нового запроса вещи
     public ResponseEntity<ItemRequestDto> createItemRequest(@RequestHeader("X-Sharer-User-Id") long userId,
                                                             @Valid @RequestBody ItemRequestDto itemRequestDto) {
-        ItemRequest itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
         return ResponseEntity.ok().body(itemRequestMapper
-                .toItemRequestDto(itemRequestService.createItemRequest(itemRequest, userId)));
+                .toItemRequestDto(itemRequestService.createItemRequest(itemRequestDto, userId)));
     }
 
     @GetMapping // Получение пользователем всех запросов

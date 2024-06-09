@@ -40,7 +40,7 @@ class UserControllerTest {
     @Test
     void createUser_whenUserIsCreate_thenResponseStatusOk() {
         UserDto userDto = new UserDto(1L, "Name", "user@mail.ru");
-        when(userMapper.toUserDto(userService.createUser(any()))).thenReturn(userDto);
+        when(userMapper.toUserDto(userService.createUser(any(UserDto.class)))).thenReturn(userDto);
 
         String result = mockMvc.perform(post("/users")
                         .contentType("application/json")
@@ -62,7 +62,7 @@ class UserControllerTest {
                         .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().is(400));
 
-        verify(userService, never()).createUser(userMapper.toUser(userDto));
+        verify(userService, never()).createUser(userDto);
     }
 
     @SneakyThrows
@@ -106,7 +106,7 @@ class UserControllerTest {
 
         User user = new User(1L, "Name", "user@mail.ru");
 
-        when(userMapper.toUserDto(userService.updateUser(user.getId(), user))).thenReturn(userDto);
+        when(userMapper.toUserDto(userService.updateUser(any(Long.class), any(UserDto.class)))).thenReturn(userDto);
 
         String result = mockMvc.perform(patch("/users/{userId}", userDto.getId())
                         .contentType("application/json")

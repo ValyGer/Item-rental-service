@@ -40,7 +40,7 @@ class ItemRepositoryTest {
         Item item1 = itemRepository.save(new Item(
                 "Telephone",
                 "A device for calls and correspondence with your friends",
-                user1.getId(),
+                user1,
                 true,
                 null
         ));
@@ -48,7 +48,7 @@ class ItemRepositoryTest {
         Item item2 = itemRepository.save(new Item(
                 "Camera",
                 "Allows you to take great photos",
-                user2.getId(),
+                user2,
                 true,
                 null
         ));
@@ -56,7 +56,7 @@ class ItemRepositoryTest {
         Item item3 = itemRepository.save(new Item(
                 "Curtains",
                 "They will hide you from the sun",
-                user1.getId(),
+                user1,
                 false,
                 null
         ));

@@ -22,7 +22,7 @@ class BookingMapperTest {
 
     @Test
     void toBookingDto() {
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        Item item = new Item(1L, "Name", "About of item", new User(), true);
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
         Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L), LocalDateTime.now().plusMinutes(10L));
 

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingService {
-    Booking createBooking(long bookingId, BookingDto bookingDto);
+    Booking createBooking(long bookerId, BookingDto bookingDto);
 
     Booking setApprovedByOwner(long userId, long bookingId, Boolean approved);
 

@@ -13,7 +13,6 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -44,15 +43,13 @@ class ItemControllerTest {
     @MockBean
     private CommentMapper commentMapper;
 
-    private Item item = new Item(1L, "Name", "About of item", 1L, true);
-
     @SneakyThrows
     @Test
     void createItem_whenItemIsCreate_thenResponseStatusOk() {
         ItemDto itemDto = new ItemDto(1L, "Name", "About of item", true, 1L);
         UserDto userDto = new UserDto(1L, "Name", "name@mail.ru");
 
-        when(itemMapper.toItemDto(itemService.createItem(userDto.getId(), item)))
+        when(itemMapper.toItemDto(itemService.createItem(userDto.getId(), itemDto)))
                 .thenReturn(itemDto);
 
         String result = mockMvc.perform(post("/items")
@@ -73,7 +70,7 @@ class ItemControllerTest {
         ItemDto itemDto = new ItemDto(1L, null, "About of item", true, 1L);
         UserDto userDto = new UserDto(1L, "Name", "name@mail.ru");
 
-        when(itemMapper.toItemDto(itemService.createItem(userDto.getId(), item)))
+        when(itemService.createItem(userDto.getId(), itemDto))
                 .thenThrow(ValidationException.class);
 
         mockMvc.perform(post("/items")
@@ -82,7 +79,7 @@ class ItemControllerTest {
                         .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().is(400));
 
-        verify(itemService, never()).createItem(userDto.getId(), itemMapper.toItem(itemDto));
+        verify(itemService, never()).createItem(userDto.getId(), itemDto);
     }
 
     @SneakyThrows
@@ -91,7 +88,7 @@ class ItemControllerTest {
         ItemDto itemDto = new ItemDto(1L, "Name", "About of item", true, 1L);
         User user = new User(1L, "Name", "user@mail.ru");
 
-        when(itemMapper.toItemDto(itemService.updateItem(user.getId(), itemDto.getId(), itemMapper.toItem(itemDto))))
+        when(itemMapper.toItemDto(itemService.updateItem(user.getId(), itemDto.getId(), itemDto)))
                 .thenReturn(itemDto);
 
         String result = mockMvc.perform(patch("/items/{itemId}", itemDto.getId())
@@ -150,8 +147,6 @@ class ItemControllerTest {
     @Test
     void searchAvailableItems() {
         String text = "ручка";
-        Long itemId = 1L;
-        Long userId = 1L;
         mockMvc.perform(get("/items/search")
                         .param("text", "ручка")
                         .contentType("application/json"))
@@ -163,12 +158,12 @@ class ItemControllerTest {
     @SneakyThrows
     @Test
     void addCommentToItem() {
-        Comment comment = new Comment("Item is good");
         CommentDto commentDto = new CommentDto(1L, "Item is good", "Commentator", LocalDateTime.now());
         ItemDto itemDto = new ItemDto(1L, "Name", "About of item", true, 1L);
         User user = new User(1L, "Name", "user@mail.ru");
+        Item item = new Item(1L, "Name", "About of item", user, true);
 
-        when(commentMapper.toCommentDto(itemService.addComment(user.getId(), item.getItemId(), comment))).thenReturn(commentDto);
+        when(commentMapper.toCommentDto(itemService.addComment(user.getId(), item.getItemId(), commentDto))).thenReturn(commentDto);
 
         String result = mockMvc.perform(post("/items/{itemId}/comment", itemDto.getId())
                         .header("X-Sharer-User-Id", user.getId())

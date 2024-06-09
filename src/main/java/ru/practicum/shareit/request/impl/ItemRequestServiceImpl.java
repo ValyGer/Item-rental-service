@@ -8,6 +8,8 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.ItemRequestService;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
@@ -25,8 +27,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final UserService userService;
     private final ItemRequestRepository itemRequestRepository;
+    private final ItemRequestMapper itemRequestMapper;
 
-    public ItemRequest createItemRequest(ItemRequest itemRequest, Long userId) throws NotFoundException {
+    public ItemRequest createItemRequest(ItemRequestDto itemRequestDto, Long userId) throws NotFoundException {
+        ItemRequest itemRequest = itemRequestMapper.toItemRequest(itemRequestDto);
         User user = userService.getUserById(userId);
         log.info("Запрос успешно создан");
         itemRequest.setRequester(user);

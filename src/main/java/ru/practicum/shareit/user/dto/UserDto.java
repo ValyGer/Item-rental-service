@@ -17,6 +17,11 @@ public class UserDto {
     @Email(message = "электронная почта не может быть пустой и должна содержать символ @")
     private String email;
 
+    public UserDto(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
     public UserDto(Long userId, String userName, String email) {
         this.id = userId;
         this.name = userName;

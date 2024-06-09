@@ -6,7 +6,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItemMapper;
+import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.impl.BookingServiceImpl;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
@@ -45,19 +47,25 @@ class BookingServiceImplTest {
     private BookingRepository bookingRepository;
 
     @Mock
+    private BookingMapper bookingMapper;
+
+    @Mock
     private BookingDtoWithItemMapper bookingDtoWithItemMapper;
 
     @Test
     void createBooking_whenCreateIsSuccess() {
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        LocalDateTime time = LocalDateTime.now();
+        Item item = new Item(1L, "Name", "About of item", new User(), true);
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
-        Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L), LocalDateTime.now().plusMinutes(10L));
+        Booking booking = new Booking(1L, item, booker, time.plusMinutes(-10L), time.plusMinutes(10L));
+        BookingDto bookingDto = new BookingDto();
 
-        when(userService.getUserById(booking.getBooker().getId())).thenReturn(booker);
-        when(itemService.getItemsById(booking.getItem().getItemId())).thenReturn(item);
+        when(bookingMapper.toBooking(any(BookingDto.class))).thenReturn(booking);
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(itemService.getItemsById(any(Long.class))).thenReturn(item);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
-        Booking bookingSaved = bookingService.createBooking(booking);
+        Booking bookingSaved = bookingService.createBooking(booker.getId(), bookingDto);
 
         assertThat(bookingSaved.getBookingId(), equalTo(booking.getBookingId()));
         assertThat(bookingSaved.getItem().getItemId(), equalTo((booking.getItem().getItemId())));
@@ -69,48 +77,52 @@ class BookingServiceImplTest {
     @Test
     void createBooking_whenThrowValidation() {
         LocalDateTime time = LocalDateTime.now();
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        Item item = new Item(1L, "Name", "About of item", new User(), true);
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
         Booking booking = new Booking(1L, item, booker, time.plusMinutes(10L), time.plusMinutes(-10L));
+        BookingDto bookingDto = new BookingDto();
+        when(bookingMapper.toBooking(any(BookingDto.class))).thenReturn(booking);
 
         assertThrows(ValidationException.class,
-                () -> bookingService.createBooking(booking));
+                () -> bookingService.createBooking(booker.getId(), bookingDto));
     }
 
     @Test
     void createBooking_whenUserNotFound() {
         LocalDateTime time = LocalDateTime.now();
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        Item item = new Item(1L, "Name", "About of item", new User(), true);
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         Booking booking = new Booking(1L, item, owner, time.plusMinutes(-10L), time.plusMinutes(10L));
-
-        when(userService.getUserById(any(Long.class))).thenReturn(owner);
-        when(itemService.getItemsById(any(Long.class))).thenReturn(item);
+        BookingDto bookingDto = new BookingDto();
+        when(bookingMapper.toBooking(any(BookingDto.class))).thenReturn(booking);
+        when(userService.getUserById(any(Long.class))).thenThrow(NotFoundException.class);
 
         assertThrows(NotFoundException.class,
-                () -> bookingService.createBooking(booking));
+                () -> bookingService.createBooking(owner.getId(), bookingDto));
     }
 
     @Test
     void createBooking_whenBookingItemNotAvailable() {
         LocalDateTime time = LocalDateTime.now();
-        Item item = new Item(1L, "Name", "About of item", 1L, false);
+        Item item = new Item(1L, "Name", "About of item", new User(), false);
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
         Booking booking = new Booking(1L, item, booker, time.plusMinutes(-10L), time.plusMinutes(10L));
-
+        BookingDto bookingDto = new BookingDto();
+        when(bookingMapper.toBooking(any(BookingDto.class))).thenReturn(booking);
         when(itemService.getItemsById(any(Long.class))).thenReturn(item);
 
         assertThrows(ValidationException.class,
-                () -> bookingService.createBooking(booking));
+                () -> bookingService.createBooking(booker.getId(), bookingDto));
     }
 
 
-        @Test
+    @Test
     void setApprovedByOwner_isGood() {
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
-        Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L), LocalDateTime.now().plusMinutes(10L));
+        Item item = new Item(1L, "Name", "About of item", owner, true);
+        Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L),
+                LocalDateTime.now().plusMinutes(10L));
         booking.setStatus(Status.WAITING);
 
         when(userService.getUserById(any(Long.class))).thenReturn(booker);
@@ -129,9 +141,9 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingById_thenReturnBooking() {
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Item item = new Item(1L, "Name", "About of item", owner, true);
         Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L), LocalDateTime.now().plusMinutes(10L));
 
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(booking));
@@ -148,9 +160,9 @@ class BookingServiceImplTest {
 
     @Test
     void getBookingById_thenReturnThrow() {
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Item item = new Item(1L, "Name", "About of item", owner, true);
         Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L), LocalDateTime.now().plusMinutes(10L));
 
         when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.empty());
@@ -181,13 +193,13 @@ class BookingServiceImplTest {
         List<Booking> listOfBooking = new ArrayList<>();
 
         when(userService.getUserById(any(Long.class))).thenReturn(booker);
-        when(bookingRepository.findAllBookingsForBookerWithStartAndEnd(any(User.class), any(LocalDateTime.class),
+        when(bookingRepository.findAllBookingsForBooker_IdWithStartAndEnd(any(Long.class), any(LocalDateTime.class),
                 any(LocalDateTime.class), any(PageRequest.class))).thenReturn(listOfBooking);
 
         bookingService.getAllBookingByUser(0, 20, booker.getId(), State.CURRENT.toString());
 
         verify(bookingRepository, times(1))
-                .findAllBookingsForBookerWithStartAndEnd(any(User.class), any(LocalDateTime.class),
+                .findAllBookingsForBooker_IdWithStartAndEnd(any(Long.class), any(LocalDateTime.class),
                         any(LocalDateTime.class), any(PageRequest.class));
     }
 
@@ -283,13 +295,13 @@ class BookingServiceImplTest {
         List<Booking> listOfBooking = new ArrayList<>();
 
         when(userService.getUserById(any(Long.class))).thenReturn(owner);
-        when(bookingRepository.findAllByItem_OwnerOrderByStartDesc(any(Long.class), any(PageRequest.class)))
+        when(bookingRepository.findAllByItem_OwnerOrderByStartDesc(any(User.class), any(PageRequest.class)))
                 .thenReturn(listOfBooking);
 
         bookingService.getAllBookingByOwner(0, 20, owner.getId(), State.ALL.toString());
 
         verify(bookingRepository, times(1))
-                .findAllByItem_OwnerOrderByStartDesc(owner.getId(), pageRequest);
+                .findAllByItem_OwnerOrderByStartDesc(owner, pageRequest);
     }
 
     @Test
@@ -300,13 +312,13 @@ class BookingServiceImplTest {
         LocalDateTime time = LocalDateTime.now();
 
         when(userService.getUserById(any(Long.class))).thenReturn(owner);
-        when(bookingRepository.findAllByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(any(Long.class),
+        when(bookingRepository.findAllByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(any(User.class),
                 any(LocalDateTime.class), any(LocalDateTime.class), any(PageRequest.class))).thenReturn(listOfBooking);
 
         bookingService.getAllBookingByOwner(0, 20, owner.getId(), State.CURRENT.toString());
 
         verify(bookingRepository, times(1))
-                .findAllByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(any(Long.class),
+                .findAllByItem_OwnerAndStartBeforeAndEndAfterOrderByStartDesc(any(User.class),
                         any(LocalDateTime.class), any(LocalDateTime.class), any(PageRequest.class));
     }
 
@@ -317,13 +329,13 @@ class BookingServiceImplTest {
         List<Booking> listOfBooking = new ArrayList<>();
 
         when(userService.getUserById(any(Long.class))).thenReturn(owner);
-        when(bookingRepository.findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(any(Long.class), any(LocalDateTime.class),
+        when(bookingRepository.findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(any(User.class), any(LocalDateTime.class),
                 any(PageRequest.class))).thenReturn(listOfBooking);
 
         bookingService.getAllBookingByOwner(0, 20, owner.getId(), State.PAST.toString());
 
         verify(bookingRepository, times(1))
-                .findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(any(Long.class),
+                .findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(any(User.class),
                         any(LocalDateTime.class), any(PageRequest.class));
     }
 
@@ -334,13 +346,13 @@ class BookingServiceImplTest {
         List<Booking> listOfBooking = new ArrayList<>();
 
         when(userService.getUserById(any(Long.class))).thenReturn(owner);
-        when(bookingRepository.findAllByItem_OwnerAndStartIsAfterOrderByStartDesc(any(Long.class), any(LocalDateTime.class),
+        when(bookingRepository.findAllByItem_OwnerAndStartIsAfterOrderByStartDesc(any(User.class), any(LocalDateTime.class),
                 any(PageRequest.class))).thenReturn(listOfBooking);
 
         bookingService.getAllBookingByOwner(0, 20, owner.getId(), State.FUTURE.toString());
 
         verify(bookingRepository, times(1))
-                .findAllByItem_OwnerAndStartIsAfterOrderByStartDesc(any(Long.class),
+                .findAllByItem_OwnerAndStartIsAfterOrderByStartDesc(any(User.class),
                         any(LocalDateTime.class), any(PageRequest.class));
     }
 
@@ -351,13 +363,13 @@ class BookingServiceImplTest {
         List<Booking> listOfBooking = new ArrayList<>();
 
         when(userService.getUserById(any(Long.class))).thenReturn(owner);
-        when(bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(any(Long.class), any(Status.class),
+        when(bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(any(User.class), any(Status.class),
                 any(PageRequest.class))).thenReturn(listOfBooking);
 
         bookingService.getAllBookingByOwner(0, 20, owner.getId(), State.WAITING.toString());
 
         verify(bookingRepository, times(1))
-                .findAllByItem_OwnerAndStatusOrderByStartDesc(owner.getId(), Status.WAITING, pageRequest);
+                .findAllByItem_OwnerAndStatusOrderByStartDesc(owner, Status.WAITING, pageRequest);
     }
 
     @Test
@@ -367,13 +379,13 @@ class BookingServiceImplTest {
         List<Booking> listOfBooking = new ArrayList<>();
 
         when(userService.getUserById(any(Long.class))).thenReturn(owner);
-        when(bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(any(Long.class), any(Status.class),
+        when(bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(any(User.class), any(Status.class),
                 any(PageRequest.class))).thenReturn(listOfBooking);
 
         bookingService.getAllBookingByOwner(0, 20, owner.getId(), State.REJECTED.toString());
 
         verify(bookingRepository, times(1))
-                .findAllByItem_OwnerAndStatusOrderByStartDesc(owner.getId(), Status.REJECTED, pageRequest);
+                .findAllByItem_OwnerAndStatusOrderByStartDesc(owner, Status.REJECTED, pageRequest);
     }
 
     @Test
@@ -398,7 +410,8 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingByUser_ReturnItem() {
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
+        User owner = new User(1L, "Name", "user@mail.ru");
+        Item item = new Item(1L, "Name", "About of item", owner, true);
         List<Booking> listOfBooking = new ArrayList<>();
 
         when(bookingRepository.findAllByItemOrderByStartDesc(any(Item.class))).thenReturn(listOfBooking);
@@ -412,8 +425,8 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingForItemByUser() {
-        Item item = new Item(1L, "Name", "About of item", 1L, true);
         User owner = new User(1L, "Name", "user@mail.ru");
+        Item item = new Item(1L, "Name", "About of item", owner, true);
         List<Booking> listOfBooking = new ArrayList<>();
         LocalDateTime time = LocalDateTime.now();
 

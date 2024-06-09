@@ -4,13 +4,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.impl.UserServiceImpl;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserServiceImplTestIT {
@@ -20,35 +20,35 @@ class UserServiceImplTestIT {
 
     @Test
     void createUserTest() {
-        User user = new User("Name", "user@mail.ru");
-        User userSaved = userService.createUser(user);
+        UserDto userDto = new UserDto("Name", "user@mail.ru");
+        User userSaved = userService.createUser(userDto);
 
-        assertEquals(user.getId(), userSaved.getId());
-        assertEquals(user.getUserName(), userSaved.getUserName());
-        assertEquals(user.getEmail(), userSaved.getEmail());
+        assertNotNull(userSaved.getId());
+        assertEquals(userDto.getName(), userSaved.getUserName());
+        assertEquals(userDto.getEmail(), userSaved.getEmail());
     }
 
     @Test
     void updateUserTest() {
-        User user = new User("Name", "user1@mail.ru");
-        User userSaved = userService.createUser(user);
+        UserDto userDto = new UserDto("Name", "user@mail.ru");
+        User userSaved = userService.createUser(userDto);
         Long userId = userSaved.getId();
 
-        User newUser = new User("NewName", "user1@mail.ru");
+        UserDto newUserDto = new UserDto("NewName", "user1@mail.ru");
 
-        User updateUser = userService.updateUser(userId, newUser);
+        User updateUser = userService.updateUser(userId, newUserDto);
 
-        assertEquals(user.getId(), updateUser.getId());
-        assertEquals(newUser.getUserName(), updateUser.getUserName());
-        assertEquals(newUser.getEmail(), updateUser.getEmail());
+        assertEquals(userId, updateUser.getId());
+        assertEquals(newUserDto.getName(), updateUser.getUserName());
+        assertEquals(newUserDto.getEmail(), updateUser.getEmail());
     }
 
     @Test
     void getAllUsers() {
-        User user1 = new User("Name First", "user9@mail.ru");
-        User user2 = new User("Name Second", "mail8@mail.ru");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        UserDto userDto1 = new UserDto("Name First", "user9@mail.ru");
+        UserDto userDto2 = new UserDto("Name Second", "mail8@mail.ru");
+        userService.createUser(userDto1);
+        userService.createUser(userDto2);
 
         List<User> listOfUser = userService.getAllUsers();
 
@@ -57,21 +57,21 @@ class UserServiceImplTestIT {
 
     @Test
     void getUserById() {
-        User user = new User("Name", "user2@mail.ru");
-        User userSaved = userService.createUser(user);
+        UserDto userDto = new UserDto("Name", "user2@mail.ru");
+        User userSaved = userService.createUser(userDto);
         Long userId = userSaved.getId();
 
         User savedUser = userService.getUserById(userId);
 
-        assertEquals(user.getId(), savedUser.getId());
-        assertEquals(user.getUserName(), savedUser.getUserName());
-        assertEquals(user.getEmail(), savedUser.getEmail());
+        assertEquals(userId, savedUser.getId());
+        assertEquals(userDto.getName(), savedUser.getUserName());
+        assertEquals(userDto.getEmail(), savedUser.getEmail());
     }
 
     @Test
     void deleteUser() {
-        User user = new User("Name", "user5@mail.ru");
-        User userSaved = userService.createUser(user);
+        UserDto userDto = new UserDto("Name", "user5@mail.ru");
+        User userSaved = userService.createUser(userDto);
         Long userId = userSaved.getId();
 
         HttpStatus httpStatus = userService.deleteUser(userId);

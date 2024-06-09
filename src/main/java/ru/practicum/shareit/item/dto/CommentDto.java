@@ -17,6 +17,10 @@ public class CommentDto {
     private String authorName; // номер пользователя которому принадлежит комментарий
     private LocalDateTime created;
 
+    public CommentDto(String text) {
+        this.text = text;
+    }
+
     public CommentDto(long id, String text, String authorName, LocalDateTime created) {
         this.id = id;
         this.text = text;
