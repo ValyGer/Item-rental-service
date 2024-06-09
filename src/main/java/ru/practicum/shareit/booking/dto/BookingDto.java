@@ -7,9 +7,6 @@ import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Getter
 @Setter
 @ToString
@@ -33,5 +30,13 @@ public class BookingDto {
         this.bookerId = bookerId;
         this.start = start;
         this.end = end;
+    }
+
+    public BookingDto(Long itemId, long bookerId, LocalDateTime start, LocalDateTime end, Status status) {
+        this.itemId = itemId;
+        this.bookerId = bookerId;
+        this.start = start;
+        this.end = end;
+        this.status = status;
     }
 }

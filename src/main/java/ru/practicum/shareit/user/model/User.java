@@ -7,9 +7,6 @@ import lombok.ToString;
 
 import javax.persistence.*;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Entity
 @Table(name = "users")
 @Getter

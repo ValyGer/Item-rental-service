@@ -13,10 +13,7 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentMapper;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndComments;
-import ru.practicum.shareit.item.dto.ItemDtoForBookingAndCommentsMapper;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
@@ -40,17 +37,24 @@ public class ItemServiceImpl implements ItemService {
     private final ItemDtoForBookingAndCommentsMapper itemDtoForBookingAndCommentsMapper;
     private final BookingLastNextDtoMapper bookingLastNextDtoMapper;
     private final CommentMapper commentMapper;
+    private final ItemMapper itemMapper;
 
     // Добавление вещи
-    public Item createItem(Long userId, Item item) throws NotFoundException {
+    public Item createItem(Long userId, ItemDto itemDto) throws NotFoundException {
+        Item item = itemMapper.toItem(itemDto);
         userService.getUserById(userId);
+        item.setOwner(userService.getUserById(userId));
         log.info("Вещь успешно добавлена");
-        item.setOwner(userId);
+        if (item.getRequest().getId() == 0) {
+            item.setRequest(null);
+        }
         return itemRepository.save(item);
     }
 
     // Обновление вещи
-    public Item updateItem(Long userId, Long itemId, Item item) throws NotFoundException {
+    @Transactional
+    public Item updateItem(Long userId, Long itemId, ItemDto itemDto) throws NotFoundException {
+        Item item = itemMapper.toItem(itemDto);
         userService.getUserById(userId);
         try {
             Item saved = itemRepository.getReferenceById(itemId);
@@ -78,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
         userService.getUserById(userId);
         log.info("Пользователь с Id = {} существует в базе", userId);
 
-        List<Item> items = itemRepository.findItemsByOwnerOrderByItemIdAsc(userId);
+        List<Item> items = itemRepository.findItemsByOwnerIdOrderByItemIdAsc(userId);
         List<ItemDtoForBookingAndComments> allItemByUser = new ArrayList<>();
         for (Item item : items) {
             ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
@@ -129,7 +133,6 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
     // Получение пользователем информации о датах следующего предыдущего бронирований вещи
     @Transactional
     public ItemDtoForBookingAndComments getItemWithBooker(long itemId, long ownerId) {
@@ -138,7 +141,7 @@ public class ItemServiceImpl implements ItemService {
             userService.getUserById(ownerId);
             ItemDtoForBookingAndComments itemFromBd = itemDtoForBookingAndCommentsMapper
                     .toItemDtoForBookingAndComments(item.get());
-            if (item.get().getOwner() == ownerId) {
+            if (item.get().getOwner().getId() == ownerId) {
                 LocalDateTime timeNow = LocalDateTime.now();
                 BookingLastNextDto lastBooking = getLastBooking(item.get(), timeNow);
                 BookingLastNextDto nextBooking = getNextBooking(item.get(), timeNow);
@@ -207,7 +210,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     // Добавление комментариев
-    public Comment addComment(long userId, long itemId, Comment comment) {
+    @Transactional
+    public Comment addComment(long userId, long itemId, CommentDto commentDto) {
+        Comment comment = commentMapper.toComment(commentDto);
         Optional<Item> item = itemRepository.findById(itemId);
         if (item.isPresent()) {
             User user = userService.getUserById(userId);
