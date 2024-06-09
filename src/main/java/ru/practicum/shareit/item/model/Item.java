@@ -38,12 +38,6 @@ public class Item {
     @OneToMany(mappedBy = "item")
     private List<Booking> bookings; // список бронирований данной вещи
 
-    public Item(String name, String description, Boolean isAvailable) {
-        this.name = name;
-        this.description = description;
-        this.isAvailable = isAvailable;
-    }
-
     public Item(long itemId, String name, String description, User owner, Boolean isAvailable) {
         this.itemId = itemId;
         this.name = name;
