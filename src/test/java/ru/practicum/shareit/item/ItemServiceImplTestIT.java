@@ -6,7 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingLastNextDtoMapper;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.impl.ItemServiceImpl;
@@ -80,7 +79,7 @@ class ItemServiceImplTestIT {
         ItemDto itemDto1 = new ItemDto("Name of Item11", "Description of Item11", true,
                 null);
         Item savedItem1 = itemService.createItem(savedUser.getId(), itemDto1);
-        ItemDto itemDto2 = new ItemDto("Name device12", "Description of device12",true, null);
+        ItemDto itemDto2 = new ItemDto("Name device12", "Description of device12", true, null);
         Item savedItem2 = itemService.createItem(savedUser.getId(), itemDto2);
 
         List<ItemDtoForBookingAndComments> allItemsOfUser = itemService.getAllItemsUser(savedUser.getId());

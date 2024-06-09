@@ -87,7 +87,7 @@ class BookingControllerTest {
                         .content(objectMapper.writeValueAsString(bookingDto)))
                 .andExpect(status().is(400));
 
-        verify(bookingService, never()).createBooking(1L ,bookingDto);
+        verify(bookingService, never()).createBooking(1L, bookingDto);
     }
 
     @SneakyThrows
