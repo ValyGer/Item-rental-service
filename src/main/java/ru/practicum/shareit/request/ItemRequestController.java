@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
-import ru.practicum.shareit.request.model.ItemRequest;
 
 import javax.validation.Valid;
 import java.util.List;
