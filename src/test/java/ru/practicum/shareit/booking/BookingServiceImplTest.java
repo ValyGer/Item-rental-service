@@ -90,12 +90,13 @@ class BookingServiceImplTest {
     @Test
     void createBooking_whenUserNotFound() {
         LocalDateTime time = LocalDateTime.now();
-        Item item = new Item(1L, "Name", "About of item", new User(), true);
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        Item item = new Item(1L, "Name", "About of item", owner, true);
         Booking booking = new Booking(1L, item, owner, time.plusMinutes(-10L), time.plusMinutes(10L));
         BookingDto bookingDto = new BookingDto();
         when(bookingMapper.toBooking(any(BookingDto.class))).thenReturn(booking);
-        when(userService.getUserById(any(Long.class))).thenThrow(NotFoundException.class);
+        when(itemService.getItemsById(any(Long.class))).thenReturn(item);
+        when(userService.getUserById(any(Long.class))).thenReturn(owner);
 
         assertThrows(NotFoundException.class,
                 () -> bookingService.createBooking(owner.getId(), bookingDto));
@@ -140,6 +141,73 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void setApprovedByOwner_whenApproved_thenThrow() {
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Item item = new Item(1L, "Name", "About of item", owner, false);
+        Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L),
+                LocalDateTime.now().plusMinutes(10L));
+        booking.setStatus(Status.REJECTED);
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(booking));
+
+        assertThrows(ValidationException.class,
+                () -> bookingService.setApprovedByOwner(owner.getId(), booking.getBookingId(), false));
+    }
+
+    @Test
+    void setApprovedByOwner_whenWaitingAndREJECTED_thenThrow() {
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Item item = new Item(1L, "Name", "About of item", owner, true);
+        Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L),
+                LocalDateTime.now().plusMinutes(10L));
+        booking.setStatus(Status.WAITING);
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(booking));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
+
+        Booking bookingSaved = bookingService.setApprovedByOwner(owner.getId(), booking.getBookingId(), false);
+
+        assertThat(bookingSaved.getBookingId(), equalTo(booking.getBookingId()));
+        assertThat(bookingSaved.getItem().getItemId(), equalTo((booking.getItem().getItemId())));
+        assertThat(bookingSaved.getBooker().getId(), equalTo(booking.getBooker().getId()));
+        assertThat(bookingSaved.getStart(), equalTo(booking.getStart()));
+        assertThat(bookingSaved.getEnd(), equalTo(booking.getEnd()));
+        assertThat(bookingSaved.getStatus(), equalTo(booking.getStatus()));
+    }
+
+    @Test
+    void setApprovedByOwner_whenBookingNotFound_thenThrow() {
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Item item = new Item(1L, "Name", "About of item", owner, true);
+        Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L),
+                LocalDateTime.now().plusMinutes(10L));
+        booking.setStatus(Status.REJECTED);
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class,
+                () -> bookingService.setApprovedByOwner(owner.getId(), booking.getBookingId(), true));
+    }
+
+    @Test
+    void setApprovedByOwner_whenBookingNotBelondUser_thenThrow() {
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        Item item = new Item(1L, "Name", "About of item", owner, true);
+        Booking booking = new Booking(1L, item, booker, LocalDateTime.now().plusMinutes(-10L),
+                LocalDateTime.now().plusMinutes(10L));
+        booking.setStatus(Status.APPROVED);
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(booking));
+
+        assertThrows(NotFoundException.class,
+                () -> bookingService.setApprovedByOwner(booker.getId(), booking.getBookingId(), true));
+    }
+
+    @Test
     void getBookingById_thenReturnBooking() {
         User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
@@ -172,6 +240,20 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void getBookingById_whenBookingDontBelongUser_thenReturnThrow() {
+        User owner = new User(1L, "Name", "user@mail.ru"); // владелиц вещи
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        User booker1 = new User(3L, "Name3", "mail3@mail.ru");
+        Item item = new Item(1L, "Name", "About of item", owner, true);
+        Booking booking = new Booking(1L, item, booker1, LocalDateTime.now().plusMinutes(-10L), LocalDateTime.now().plusMinutes(10L));
+
+        when(bookingRepository.findById(any(Long.class))).thenReturn(Optional.of(booking));
+
+        assertThrows(NotFoundException.class,
+                () -> bookingService.getBookingById(2L, booking.getBookingId()));
+    }
+
+    @Test
     void getAllBookingByUser_whenStateAll() {
         PageRequest pageRequest = PageRequest.of(0, 20);
         User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
@@ -182,6 +264,22 @@ class BookingServiceImplTest {
                 .thenReturn(listOfBooking);
 
         bookingService.getAllBookingByUser(0, 20, booker.getId(), State.ALL.toString());
+
+        verify(bookingRepository, times(1))
+                .findBookingsByBooker_IdOrderByStartDesc(booker.getId(), pageRequest);
+    }
+
+    @Test
+    void getAllBookingByUser_whenStateEmpty() {
+        PageRequest pageRequest = PageRequest.of(0, 20);
+        User booker = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(userService.getUserById(any(Long.class))).thenReturn(booker);
+        when(bookingRepository.findBookingsByBooker_IdOrderByStartDesc(any(Long.class), any(PageRequest.class)))
+                .thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByUser(0, 20, booker.getId(), "");
 
         verify(bookingRepository, times(1))
                 .findBookingsByBooker_IdOrderByStartDesc(booker.getId(), pageRequest);
@@ -299,6 +397,22 @@ class BookingServiceImplTest {
                 .thenReturn(listOfBooking);
 
         bookingService.getAllBookingByOwner(0, 20, owner.getId(), State.ALL.toString());
+
+        verify(bookingRepository, times(1))
+                .findAllByItem_OwnerOrderByStartDesc(owner, pageRequest);
+    }
+
+    @Test
+    void getAllBookingByOwner_whenStateEmpty() {
+        PageRequest pageRequest = PageRequest.of(0, 20);
+        User owner = new User(2L, "Name2", "mail@mail.ru"); // арендатор
+        List<Booking> listOfBooking = new ArrayList<>();
+
+        when(userService.getUserById(any(Long.class))).thenReturn(owner);
+        when(bookingRepository.findAllByItem_OwnerOrderByStartDesc(any(User.class), any(PageRequest.class)))
+                .thenReturn(listOfBooking);
+
+        bookingService.getAllBookingByOwner(0, 20, owner.getId(), "");
 
         verify(bookingRepository, times(1))
                 .findAllByItem_OwnerOrderByStartDesc(owner, pageRequest);
