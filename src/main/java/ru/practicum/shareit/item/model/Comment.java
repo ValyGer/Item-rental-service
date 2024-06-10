@@ -36,4 +36,10 @@ public class Comment {
     public Comment(String text) {
         this.text = text;
     }
+
+    public Comment(String text, User author, LocalDateTime create) {
+        this.text = text;
+        this.author = author;
+        this.create = create;
+    }
 }

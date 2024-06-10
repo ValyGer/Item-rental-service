@@ -5,16 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -27,15 +22,13 @@ public class ItemController {
     @PostMapping // Создание новой вещи
     public ResponseEntity<ItemDto> createItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
                                               @Valid @RequestBody ItemDto itemDto) {
-        Item item = itemMapper.toItem(itemDto);
-        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.createItem(userId, item)));
+        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.createItem(userId, itemDto)));
     }
 
     @PatchMapping("/{itemId}") // Обновление информации о вещи
-    public ResponseEntity<ItemDto> updateItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId,
-                                              @RequestBody ItemDto itemDto) {
-        Item item = itemMapper.toItem(itemDto);
-        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.updateItem(userId, itemId, item)));
+    public ResponseEntity<ItemDto> updateItemById(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId,
+                                                  @RequestBody ItemDto itemDto) {
+        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto)));
     }
 
     @GetMapping // Получение списка вещей пользователя
@@ -61,7 +54,6 @@ public class ItemController {
     public ResponseEntity<CommentDto> addCommentToItem(@RequestHeader("X-Sharer-User-Id") long userId,
                                                        @Valid @RequestBody CommentDto commentDto,
                                                        @PathVariable long itemId) {
-        Comment comment = commentMapper.toComment(commentDto);
-        return ResponseEntity.ok().body(commentMapper.toCommentDto(itemService.addComment(userId, itemId, comment)));
+        return ResponseEntity.ok().body(commentMapper.toCommentDto(itemService.addComment(userId, itemId, commentDto)));
     }
 }

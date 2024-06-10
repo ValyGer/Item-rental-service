@@ -8,6 +8,8 @@ import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import javax.transaction.Transactional;
@@ -19,9 +21,11 @@ import java.util.Optional;
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     // Создание нового пользователя
-    public User createUser(User user) {
+    public User createUser(UserDto userDto) {
+        User user = userMapper.toUser(userDto);
         try {
             User userCreate = userRepository.save(user);
             log.info("Пользователь {} успешно добавлен", user);
@@ -33,7 +37,8 @@ public class UserServiceImpl implements UserService {
     }
 
     // Обновление пользователя
-    public User updateUser(Long userId, User user) {
+    public User updateUser(Long userId, UserDto userDto) {
+        User user = userMapper.toUser(userDto);
         User saved = getUserById(userId);
         if (user.getUserName() != null) {
             saved.setUserName(user.getUserName());

@@ -12,12 +12,9 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "item")
 @NoArgsConstructor
 @Entity
 @Table(name = "bookings")
@@ -39,4 +36,20 @@ public class Booking {
     private LocalDateTime end;
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    public Booking(long bookingId, Item item, User booker, LocalDateTime start, LocalDateTime end) {
+        this.bookingId = bookingId;
+        this.item = item;
+        this.booker = booker;
+        this.start = start;
+        this.end = end;
+    }
+
+    public Booking(Item item, User booker, LocalDateTime start, LocalDateTime end, Status status) {
+        this.item = item;
+        this.booker = booker;
+        this.start = start;
+        this.end = end;
+        this.status = status;
+    }
 }
