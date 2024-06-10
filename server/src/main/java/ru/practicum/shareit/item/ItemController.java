@@ -20,13 +20,13 @@ public class ItemController {
     private final CommentMapper commentMapper;
 
     @PostMapping // Создание новой вещи
-    public ResponseEntity<ItemDto> createItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<ItemDto> createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @Valid @RequestBody ItemDto itemDto) {
         return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.createItem(userId, itemDto)));
     }
 
     @PatchMapping("/{itemId}") // Обновление информации о вещи
-    public ResponseEntity<ItemDto> updateItemById(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId,
+    public ResponseEntity<ItemDto> updateItemById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable long itemId,
                                                   @RequestBody ItemDto itemDto) {
         return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto)));
     }
@@ -52,7 +52,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment") // Добавление комментариев
     public ResponseEntity<CommentDto> addCommentToItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                       @Valid @RequestBody CommentDto commentDto,
+                                                       @RequestBody CommentDto commentDto,
                                                        @PathVariable long itemId) {
         return ResponseEntity.ok().body(commentMapper.toCommentDto(itemService.addComment(userId, itemId, commentDto)));
     }
