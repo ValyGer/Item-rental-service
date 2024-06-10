@@ -1,12 +1,12 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +19,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping // Добавление нового пользователя
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
         return ResponseEntity.ok().body(userMapper.toUserDto(userService.createUser(userDto)));
     }
 
@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}") // Удаление пользователя по Id
-    public void deleteUserBuId(@PathVariable long userId) {
-        userService.deleteUser(userId);
+    public ResponseEntity<HttpStatus> deleteUserBuId(@PathVariable long userId) {
+        return ResponseEntity.ok(userService.deleteUser(userId));
     }
 }

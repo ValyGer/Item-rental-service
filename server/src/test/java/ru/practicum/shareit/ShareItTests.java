@@ -8,7 +8,7 @@ class ShareItTests {
 
     @Test
     void contextLoads() {
-        ShareItApp.main(new String[]{});
+        ShareItServer.main(new String[]{});
     }
 
 }
