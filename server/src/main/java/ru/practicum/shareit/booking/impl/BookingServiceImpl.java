@@ -22,6 +22,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,6 +136,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    @Transactional
     // Получение списка всех бронирований текущего пользователя
     public List<BookingDtoWithItem> getAllBookingByUser(int from, int size, long userId, String state) {
         // проверяем отрицательный ли параметр
@@ -209,6 +211,7 @@ public class BookingServiceImpl implements BookingService {
         return listOfBookingDto;
     }
 
+    @Transactional
     // Получение списка бронирований для всех вещей текущего пользователя
     public List<Booking> getAllBookingByOwner(int from, int size, long ownerId, String state) {
         // проверяем отрицательный ли параметр
