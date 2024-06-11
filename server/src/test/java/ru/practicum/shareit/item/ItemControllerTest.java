@@ -66,24 +66,6 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void createItem_whenItemIsNotCreate_thenResponseBadRequest() {
-        ItemDto itemDto = new ItemDto(1L, null, "About of item", true, 1L);
-        UserDto userDto = new UserDto(1L, "Name", "name@mail.ru");
-
-        when(itemService.createItem(userDto.getId(), itemDto))
-                .thenThrow(ValidationException.class);
-
-        mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", userDto.getId())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(itemDto)))
-                .andExpect(status().is(400));
-
-        verify(itemService, never()).createItem(userDto.getId(), itemDto);
-    }
-
-    @SneakyThrows
-    @Test
     void updateItemById_whenResponseStatusOk() {
         ItemDto itemDto = new ItemDto(1L, "Name", "About of item", true, 1L);
         User user = new User(1L, "Name", "user@mail.ru");

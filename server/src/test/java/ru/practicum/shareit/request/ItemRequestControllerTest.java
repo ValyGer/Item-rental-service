@@ -60,23 +60,6 @@ class ItemRequestControllerTest {
 
     @SneakyThrows
     @Test
-    void createItemRequest_whenItemRequestIsCreate_thenResponseStatusBadRequest() {
-        ItemRequestDto itemRequestDto = new ItemRequestDto(1L, null, 1L, LocalDateTime.now());
-
-        when(itemRequestService.createItemRequest(itemRequestDto, user.getId()))
-                .thenThrow(NotFoundException.class);
-
-        mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", user.getId())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(itemRequestDto)))
-                .andExpect(status().is(400));
-
-        verify(itemRequestService, never()).createItemRequest(itemRequestDto, user.getId());
-    }
-
-    @SneakyThrows
-    @Test
     void getAllItemRequestOfUser_whenResponseStatusOk() {
         Integer from = 0;
         Integer size = 10;

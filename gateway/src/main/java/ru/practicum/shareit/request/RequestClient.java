@@ -37,7 +37,7 @@ public class RequestClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("/all?from={from}&size={size}", userId, parameters);
+        return get("?from={from}&size={size}", userId, parameters);
     }
 
     @GetMapping("/all") // Получение пользователем списка запросов созданного другими пользователями

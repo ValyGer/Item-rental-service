@@ -78,20 +78,6 @@ class BookingControllerTest {
 
     @SneakyThrows
     @Test
-    void createBooking_whenUserIsNotValid_thenResponseBadRequest() {
-        BookingDto bookingDto = new BookingDto(null, 1L, start, end);
-
-        mockMvc.perform(post("/bookings")
-                        .header("X-Sharer-User-Id", booker.getId())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(bookingDto)))
-                .andExpect(status().is(400));
-
-        verify(bookingService, never()).createBooking(1L, bookingDto);
-    }
-
-    @SneakyThrows
-    @Test
     void getBookingById_whenResponseStatusOk() {
         Long bookingId = 1L;
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)

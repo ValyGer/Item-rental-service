@@ -39,7 +39,7 @@ public class RequestController {
 
     @GetMapping("/{requestId}") // Получение информации о бронировании
     public ResponseEntity<Object> getItemRequestById(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
-                                                     @Positive @PathVariable long requestId) {
-        return requestClient.getItemRequestById(requestId, userId);
+                                                     @PathVariable long requestId) {
+        return requestClient.getItemRequestById(userId, requestId);
     }
 }
