@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,7 @@ public class ItemRequestController {
 
     @PostMapping // Добавление нового запроса вещи
     public ResponseEntity<ItemRequestDto> createItemRequest(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                            @Valid @RequestBody ItemRequestDto itemRequestDto) {
+                                                            @RequestBody ItemRequestDto itemRequestDto) {
         return ResponseEntity.ok().body(itemRequestMapper
                 .toItemRequestDto(itemRequestService.createItemRequest(itemRequestDto, userId)));
     }

@@ -55,18 +55,6 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void createUser_whenUserIsNotValid_thenResponseBadRequest() {
-        UserDto userDto = new UserDto(1L, "Name", "mail.ru");
-        mockMvc.perform(post("/users")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().is(400));
-
-        verify(userService, never()).createUser(userDto);
-    }
-
-    @SneakyThrows
-    @Test
     void getAllUsers_thenResponseStatusOk() {
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk());

@@ -27,7 +27,7 @@ public class BookingClient extends BaseClient {
 
 
     public ResponseEntity<Object> createBooking(long bookerId, BookingDto bookingDto) {
-        return patch("/" + bookerId, bookingDto);
+        return post("", bookerId, bookingDto);
     }
 
     public ResponseEntity<Object> setApprovedByOwner(long userId, long bookingId, Boolean approved) {

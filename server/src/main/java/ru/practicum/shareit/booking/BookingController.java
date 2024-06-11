@@ -7,7 +7,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItem;
 import ru.practicum.shareit.booking.dto.BookingDtoWithItemMapper;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +19,7 @@ public class BookingController {
 
     @PostMapping // Создание нового
     public ResponseEntity<BookingDtoWithItem> createBooking(@RequestHeader("X-Sharer-User-Id") long bookerId,
-                                                            @Valid @RequestBody BookingDto bookingDto) {
+                                                            @RequestBody BookingDto bookingDto) {
         return ResponseEntity.ok().body(bookingDtoWithItemMapper.toBookingDtoWithItem(bookingService
                 .createBooking(bookerId, bookingDto)));
     }

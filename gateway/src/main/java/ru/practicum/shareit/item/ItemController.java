@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping("/items")
@@ -36,7 +37,7 @@ public class ItemController {
     @GetMapping("/{itemId}") // Получение вещи по Id
     public ResponseEntity<Object> getItemWithBooker(@RequestHeader("X-Sharer-User-Id") long userId,
                                                     @PathVariable long itemId) {
-        return itemClient.getItemWithBooker(itemId, userId);
+        return itemClient.getItemWithBooker(userId, itemId);
     }
 
     @GetMapping("/search") // Поиск вещи по строке text
@@ -45,9 +46,9 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment") // Добавление комментариев
-    public ResponseEntity<Object> addCommentToItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> addCommentToItem(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                    @Valid @RequestBody CommentDto commentDto,
-                                                   @PathVariable long itemId) {
+                                                   @Positive @PathVariable long itemId) {
         return itemClient.addCommentToItem(itemId, commentDto, userId);
     }
 }

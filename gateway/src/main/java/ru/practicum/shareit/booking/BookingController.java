@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -14,9 +16,9 @@ public class BookingController {
     private final BookingClient bookingClient;
 
     @PostMapping // Создание нового
-    public ResponseEntity<Object> createBooking(@RequestHeader("X-Sharer-User-Id") long bookerId,
+    public ResponseEntity<Object> createBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                                 @Valid @RequestBody BookingDto bookingDto) {
-        return bookingClient.createBooking(bookerId, bookingDto);
+        return bookingClient.createBooking(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}") // Подтверждение или отклонении бронирования
@@ -27,13 +29,13 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}") // Получение информации о бронировании
-    public ResponseEntity<Object> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBookingById(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                  @PathVariable long bookingId) {
         return bookingClient.getBookingById(userId, bookingId);
     }
 
     @GetMapping // Получение списка бронирований для данного пользователя с учетом статуса и даты
-    public ResponseEntity<Object> getAllBookingByUser(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getAllBookingByUser(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
                                                       @RequestParam(value = "state", defaultValue = "ALL",
                                                               required = false) String state,
                                                       @RequestParam(required = false, defaultValue = "0") Integer from,
@@ -42,7 +44,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner") // Получение списка бронирований для всех вещей текущего пользователя с учетом статуса и даты
-    public ResponseEntity<Object> getAllBookingByOwner(@RequestHeader("X-Sharer-User-Id") long ownerId,
+    public ResponseEntity<Object> getAllBookingByOwner(@Positive @RequestHeader("X-Sharer-User-Id") long ownerId,
                                                        @RequestParam(value = "state", defaultValue = "ALL",
                                                                required = false) String state,
                                                        @RequestParam(required = false, defaultValue = "0") Integer from,
