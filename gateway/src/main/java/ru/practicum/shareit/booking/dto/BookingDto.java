@@ -16,7 +16,7 @@ public class BookingDto {
     private Long id;
     @NotNull
     private Long itemId;
-    private long bookerId;
+    private Long bookerId;
     @NotNull(message = "Не указано время начала бронирования")
     @FutureOrPresent(message = "Время начала бронирования не может быть в прошлом")
     private LocalDateTime start;

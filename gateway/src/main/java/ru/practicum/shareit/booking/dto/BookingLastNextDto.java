@@ -10,6 +10,6 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public class BookingLastNextDto {
-    private long id;
-    private long bookerId;
+    private Long id;
+    private Long bookerId;
 }

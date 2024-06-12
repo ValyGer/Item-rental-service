@@ -19,13 +19,4 @@ public class BookingDtoWithItem {
     private LocalDateTime start;
     private LocalDateTime end;
     private Status status;
-
-    public BookingDtoWithItem(Long id, ItemDtoForBooking item, UserDtoForBooking booker, LocalDateTime start, LocalDateTime end, Status status) {
-        this.id = id;
-        this.item = item;
-        this.booker = booker;
-        this.start = start;
-        this.end = end;
-        this.status = status;
-    }
 }

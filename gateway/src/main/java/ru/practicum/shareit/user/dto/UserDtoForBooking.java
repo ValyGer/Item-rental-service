@@ -11,8 +11,4 @@ import lombok.ToString;
 @NoArgsConstructor
 public class UserDtoForBooking {
     private Long id;
-
-    public UserDtoForBooking(Long id) {
-        this.id = id;
-    }
 }

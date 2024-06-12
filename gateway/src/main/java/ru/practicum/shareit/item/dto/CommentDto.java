@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class CommentDto {
-    private long id; // идентификатор комментария
+    private Long id; // идентификатор комментария
     @NotBlank
     private String text; // содержание комментария
     private String authorName; // номер пользователя которому принадлежит комментарий

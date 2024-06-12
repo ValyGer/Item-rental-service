@@ -3,6 +3,7 @@ services:
   gateway:
     build: gateway
     image: gateway
+    restart: "on-failure"
     container_name: shareit-gateway
     ports:
       - "8080:8080"
@@ -14,6 +15,7 @@ services:
   server:
     build: server
     image: server
+    restart: "on-failure"
     container_name: shareit-server
     ports:
       - "9090:9090"
@@ -26,6 +28,8 @@ services:
 
   db:
     image: postgres:13.7-alpine
+    volumes:
+      - /data/postgresql/shareit-db
     container_name: shareit-db
     ports:
       - "6541:5432"
