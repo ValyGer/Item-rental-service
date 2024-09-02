@@ -36,4 +36,6 @@
 * Java 11
 * Spring Boot 2.7.2
 * Maven
-* Lombok
+* Hibernate
+* Mockito
+* Junit 
